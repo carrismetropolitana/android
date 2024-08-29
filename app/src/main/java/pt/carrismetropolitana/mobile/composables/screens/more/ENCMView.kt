@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import pt.carrismetropolitana.mobile.composables.components.common.WebView
 import pt.carrismetropolitana.mobile.services.cmapi.ENCM
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,50 +86,7 @@ fun ENCMView(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            item {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data("https://www.navegante.pt/assets/94954915-432c-4a56-8157-c8b2c94e793d?access_token=utilizador.rest")
-                        .crossfade(true)
-                        .build(),
-                    modifier = Modifier
-                        .height(200.dp)
-                        .fillMaxWidth(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                )
-
-                Text(
-                    text = "Dedicados ao passageiro, os chamados Espaços navegante® Carris Metropolitana, concentram todos os serviços relacionados com a Carris Metropolitana, possibilitando esclarecer dúvidas, solicitar a emissão de cartões navegante® ou mesmo aderir ao passe navegante família e antigo combatente.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
-
-                Column {
-                    ENCMItem()
-                }
-            }
-
-//            items(encms) { encm ->
-//                ENCMItem(
-//                    encm = encm,
-//                    locationManager = locationManager,
-//                    onNavigateClick = {
-//                        selectedENCM = encm
-//                        val availableMapApps = getAvailableMapApps(context)
-//                        if (availableMapApps.size > 1) {
-//                            isMapAppSelectionDialogVisible = true
-//                        } else {
-//                            navigateTo(encm.lat.toDouble(), encm.lon.toDouble(), availableMapApps[0])
-//                        }
-//                    }
-//                )
-//                Divider()
-//            }
-        }
+        WebView(url = "https://alpha.carrismetropolitana.pt/stores?origin=app", modifier = Modifier.padding(paddingValues))
     }
 
 }

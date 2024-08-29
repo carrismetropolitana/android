@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "pt.carrismetropolitana.mobile"
-        minSdk = 25
+        minSdk = 26 // was initially 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

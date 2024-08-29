@@ -18,9 +18,11 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -102,6 +104,8 @@ fun FavoriteItemCustomization(
                         Text("Pesquisar ${if (favoriteType == FavoriteType.STOP) "paragens" else "linhas"}")
                     }
                 }
+
+                MyTextField()
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -155,9 +159,22 @@ fun FavoriteItemCustomization(
 @Preview
 @Composable
 fun FavoriteItemCustomizationPreview() {
-    FavoriteItemCustomization(
-        navController = rememberNavController(),
-        favoriteType = FavoriteType.LINE,
-        favoriteId = "1523"
+//    FavoriteItemCustomization(
+//        navController = rememberNavController(),
+//        favoriteType = FavoriteType.LINE,
+//        favoriteId = "1523"
+//    )
+    MyTextField()
+}
+
+@Composable
+fun MyTextField() {
+    var text by remember { mutableStateOf("") }
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = { newText -> text = newText },
+        label = { Text("Enter text") },
+        modifier = Modifier.padding(16.dp).clickable { text = "Hello World!" }
     )
 }

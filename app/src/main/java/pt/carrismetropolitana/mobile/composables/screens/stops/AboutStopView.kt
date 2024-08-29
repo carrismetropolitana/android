@@ -1,4 +1,4 @@
-package pt.carrismetropolitana.mobile.composables.screens
+package pt.carrismetropolitana.mobile.composables.screens.stops
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -27,10 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
-import pt.carrismetropolitana.mobile.DummyLinesList
+import pt.carrismetropolitana.mobile.LinesList
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.TransitLine
-import pt.carrismetropolitana.mobile.dummyTransitLines
+import pt.carrismetropolitana.mobile.composables.screens.lines.SquareButton
 
 
 val dummyTransitPatterns = listOf(
@@ -139,7 +139,7 @@ fun AboutStopView(
                 }
             }
 
-            DummyLinesList(transitLines = dummyTransitPatterns, navController = navController)
+            LinesList(transitLines = dummyTransitPatterns, navController = navController)
 
         }
     }

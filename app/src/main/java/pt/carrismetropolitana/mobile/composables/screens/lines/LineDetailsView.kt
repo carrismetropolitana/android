@@ -1,20 +1,13 @@
-package pt.carrismetropolitana.mobile.composables.screens
+package pt.carrismetropolitana.mobile.composables.screens.lines
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,9 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,11 +35,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,13 +47,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.launch
 import pt.carrismetropolitana.mobile.MLNMapView
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
-import pt.carrismetropolitana.mobile.TransitLine
 import pt.carrismetropolitana.mobile.composables.StopScheduleView
 import pt.carrismetropolitana.mobile.composables.components.Pill
+import pt.carrismetropolitana.mobile.composables.components.common.DynamicSelectTextField
+import pt.carrismetropolitana.mobile.composables.components.common.DynamicSelectTextFieldOption
+import pt.carrismetropolitana.mobile.composables.components.common.date_picker.DatePickerField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,9 +136,28 @@ fun LineDetailsView(
                         iconContentDescription = "Alerts",
                         size = 60,
                         action = {
-//                            showBottomSheet = true // TODO: this should be a dialog, it's like this only for testing the schedules sheet
+                            navController.navigate(Screens.AlertsForEntity.route.replace("{entityType}", "LINE").replace("{entityId}", "1242"))
                         })
                 }
+
+                DatePickerField(label = "Data", date = null, onDateSelected = { /*TODO*/ })
+
+                DynamicSelectTextField(
+                    selectedValue = "Agualva - Cacém (Estação)",
+                    options = listOf(
+                        DynamicSelectTextFieldOption(
+                            title = "Agualva - Cacém (Estação)",
+                            subtitle = "Agualva Cacém (Estação) - Oeiras (Estação)"
+                        ),
+                        DynamicSelectTextFieldOption(
+                            title = "Oeiras (Estação Norte)",
+                            subtitle = "Agualva Cacém (Estação) - Oeiras (Estação)"
+                        ),
+                    ),
+                    label = "Sentido",
+                    onValueChangedEvent = { /*TODO*/ },
+                    modifier = Modifier
+                )
             }
             MLNMapView(
                 modifier = Modifier

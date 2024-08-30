@@ -101,9 +101,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 //        window.setBackgroundDrawable(BitmapDrawable())
         super.onCreate(savedInstanceState)
-
-        linesManager.fetchLines()
-
         setContent {
             CarrisMetropolitanaTheme {
                 val items = listOf<BottomNavigationItem>(

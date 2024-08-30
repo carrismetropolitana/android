@@ -122,7 +122,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LinesList(lines = linesManager.lines.value, navController = navController)
+            LinesList(lines = linesManager.data.value, navController = navController)
         }
     }
 }

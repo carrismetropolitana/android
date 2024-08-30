@@ -1,63 +1,60 @@
 package pt.carrismetropolitana.mobile.services.cmapi
-//
-//import android.util.Log
-//import io.ktor.client.HttpClient
-////import io.ktor.client.engine.android.Android
-//import io.ktor.client.plugins.DefaultRequest
-//import io.ktor.client.plugins.HttpTimeout
-//import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-//import io.ktor.client.plugins.defaultRequest
-//import io.ktor.client.plugins.logging.LogLevel
-//import io.ktor.client.plugins.logging.Logger
-//import io.ktor.client.plugins.logging.Logging
-//import io.ktor.client.request.accept
-//import io.ktor.client.request.header
-//import io.ktor.http.ContentType
-//import io.ktor.http.HttpHeaders
-//import io.ktor.serialization.kotlinx.json.json
-//import kotlinx.serialization.json.Json
 
-private const val TIMEOUT = 6_000L
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Url
 
-//interface CMAPIService {
-//    suspend fun getStops(): List<Stop>
-//
-//    companion object {
-//        fun create(): CMAPIService {
-//            return CMAPIServiceImpl(
-//                client = HttpClient(Android) {
-//                    install(Logging) {
-//                        level = LogLevel.ALL
-//                        logger = object : Logger {
-//                            override fun log(message: String) {
-//                                Log.v("[Logger::KTOR] — ", message)
-//                            }
-//                        }
-//                    }
-//
-//                    install(ContentNegotiation) {
-//                        json(
-//                            Json {
-//                                prettyPrint = true
-//                                isLenient = true
-//                                useAlternativeNames = true
-//                                ignoreUnknownKeys = true
-//                                encodeDefaults = false
-//                            }
-//                        )
-//                    }
-//
-//                    install(HttpTimeout) {
-//                        requestTimeoutMillis = TIMEOUT
-//                        connectTimeoutMillis = TIMEOUT
-//                        socketTimeoutMillis = TIMEOUT
-//                    }
-//
-//                    defaultRequest {
-//                        accept(ContentType.Application.Json)
-//                    }
-//                }
-//            )
-//        }
-//    }
-//}
+interface CMAPIService {
+    @GET
+    suspend fun <T> makeGetRequest(@Url url: String): T
+
+    @GET("alerts")
+    suspend fun getAlerts(): List<GtfsRtAlertEntity>
+
+    @GET("stops")
+    suspend fun getStops(): List<Stop>
+
+    @GET("lines")
+    suspend fun getLines(): List<Line>
+
+    @GET("routes/{routeId}")
+    suspend fun getRoute(@Path("routeId") routeId: String): Route
+
+    @GET("patterns/{patternId}")
+    suspend fun getPattern(@Path("patternId") patternId: String): Pattern
+
+    @GET("v2/patterns/{patternId}")
+    suspend fun getPatternVersions(@Path("patternId") patternId: String): List<Pattern>
+
+    @GET("stops/{stopId}/realtime")
+    suspend fun getETAs(@Path("stopId") stopId: String): List<RealtimeETA>
+
+    @GET("patterns/{patternId}/realtime")
+    suspend fun getPatternETAs(@Path("patternId") patternId: String): List<PatternRealtimeETA>
+
+    @GET("vehicles")
+    suspend fun getVehicles(): List<Vehicle>
+
+    @GET("datasets/facilities/encm")
+    suspend fun getENCM(): List<ENCM>
+
+    @GET("shapes/{shapeId}")
+    suspend fun getShape(@Path("shapeId") shapeId: String): Shape
+}
+
+object CMAPINetworkService {
+    private const val BASE_URL = "https://api.carrismetropolitana.pt/"
+
+    private val retrofit: Retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(
+            Json.asConverterFactory("application/json; charset=utf-8".toMediaType())
+        )
+        .build()
+
+    val apiService: CMAPIService = retrofit.create(CMAPIService::class.java)
+}

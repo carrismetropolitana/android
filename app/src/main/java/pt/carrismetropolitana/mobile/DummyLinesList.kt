@@ -23,6 +23,7 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import pt.carrismetropolitana.mobile.composables.components.Pill
+import pt.carrismetropolitana.mobile.services.cmapi.Line
 
 // Dummy data class for transit lines
 data class TransitLine(
@@ -741,10 +742,10 @@ val dTransitLines = listOf(
     )
 
 @Composable
-fun LinesList(transitLines: List<TransitLine>, navController: NavController) {
+fun LinesList(lines: List<Line>, navController: NavController) {
     LazyColumn() {
         itemsIndexed(
-            items = transitLines,
+            items = lines,
         ) {index, line ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -752,7 +753,7 @@ fun LinesList(transitLines: List<TransitLine>, navController: NavController) {
                     .padding(16.dp)
                     .clickable { navController.navigate("line_details/${line.shortName}") }
             ) {
-                Pill(text = line.shortName, color = line.pillColor, textColor = line.textColor, size = 60)
+                Pill(text = line.shortName, color = Color(line.color.toColorInt()), textColor = Color(line.textColor.toColorInt()), size = 60)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = line.longName,
@@ -761,7 +762,7 @@ fun LinesList(transitLines: List<TransitLine>, navController: NavController) {
                     modifier = Modifier.weight(1f)
                 )
             }
-            if (index < transitLines.size - 1) {
+            if (index < lines.size - 1) {
                 Divider(color = Color.LightGray, thickness = 1.dp)
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -769,8 +770,8 @@ fun LinesList(transitLines: List<TransitLine>, navController: NavController) {
     }
 }
 
-@Preview
-@Composable
-fun DummyLinesListPreview() {
-    LinesList(transitLines = dTransitLines, navController = rememberNavController())
-}
+//@Preview
+//@Composable
+//fun DummyLinesListPreview() {
+//    LinesList(transitLines = dTransitLines, navController = rememberNavController())
+//}

@@ -35,12 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LinesList
+import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.dTransitLines
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues) {
+    val linesManager = LocalLinesManager.current
+
     var text by rememberSaveable {
         mutableStateOf("")
     }
@@ -119,7 +122,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LinesList(transitLines = dTransitLines, navController = navController)
+            LinesList(lines = linesManager.lines.value, navController = navController)
         }
     }
 }

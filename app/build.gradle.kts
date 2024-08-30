@@ -74,18 +74,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
+
     implementation("org.maplibre.gl:android-sdk:11.0.1")
     implementation("io.coil-kt:coil-compose:2.6.0")
-
-//    implementation(libs.ktor.client.core)
-//    implementation(libs.ktor.client.android)
-//    implementation(libs.ktor.client.okhttp)
-//    implementation(libs.ktor.client.serialization)
-//    implementation(libs.ktor.client.logging)
-//    implementation(libs.ktor.serialization.kotlinx.json)
-//    implementation(libs.ktor.client.content.negotiation)
-
-//    implementation(libs.bundles.ktor)
 
     implementation(libs.bundles.retrofit)
 

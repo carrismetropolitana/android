@@ -55,7 +55,7 @@ import pt.carrismetropolitana.mobile.composables.screens.more.ENCMView
 import pt.carrismetropolitana.mobile.composables.screens.more.FAQView
 import pt.carrismetropolitana.mobile.composables.screens.more.MoreScreen
 import pt.carrismetropolitana.mobile.composables.screens.stops.StopsScreen
-import pt.carrismetropolitana.mobile.services.cmapi.RetrofitInstance
+import pt.carrismetropolitana.mobile.managers.LinesManager
 import pt.carrismetropolitana.mobile.ui.common.animatedComposable
 import pt.carrismetropolitana.mobile.ui.common.slideInVerticallyComposable
 
@@ -94,12 +94,16 @@ sealed class Screens(val route : String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
-    private val cmApi = RetrofitInstance.cmApi
+    private val linesManager by lazy { LinesManager() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         installSplashScreen()
 //        window.setBackgroundDrawable(BitmapDrawable())
         super.onCreate(savedInstanceState)
+
+        linesManager.fetchLines()
+
         setContent {
             CarrisMetropolitanaTheme {
                 val items = listOf<BottomNavigationItem>(
@@ -140,229 +144,233 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(false)
                 }
 
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                CompositionLocalProvider(
+                    LocalLinesManager provides linesManager
                 ) {
-                    val navController = rememberNavController()
-                    Scaffold(
-                        topBar = {
-                            AnimatedVisibility(
-                                visible = topBarVisible,
-                                enter = slideInVertically(initialOffsetY = { -it }),
-                                exit = slideOutVertically(targetOffsetY = { -it }),
-                            ) {
-                                TopAppBar(
-                                    modifier = Modifier.height(120.dp),
-                                    colors = TopAppBarDefaults.topAppBarColors(
-                                        containerColor = Color("#FFDD01".toColorInt()),
-                                        // titleContentColor = MaterialTheme.colorScheme.secondary,
-                                    ),
-                                    title = {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.cm_logo_white),
-                                            contentDescription = "Logo Carris Metropolitana",
-                                            modifier = Modifier.padding(vertical = 10.dp)
-                                        )
-                                    },
-                                )
-                            }
-                        },
-                        bottomBar = {
-                            AnimatedVisibility(
-                                visible = bottomNavbarVisible,
-                                enter = slideInVertically(initialOffsetY = { it }),
-                                exit = slideOutVertically(targetOffsetY = { it })
-                            ) {
-                                NavigationBar() {
-                                    val navBackStackEntry by navController.currentBackStackEntryAsState()
-                                    val currentDestination = navBackStackEntry?.destination
+                    // A surface container using the 'background' color from the theme
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        val navController = rememberNavController()
+                        Scaffold(
+                            topBar = {
+                                AnimatedVisibility(
+                                    visible = topBarVisible,
+                                    enter = slideInVertically(initialOffsetY = { -it }),
+                                    exit = slideOutVertically(targetOffsetY = { -it }),
+                                ) {
+                                    TopAppBar(
+                                        modifier = Modifier.height(120.dp),
+                                        colors = TopAppBarDefaults.topAppBarColors(
+                                            containerColor = Color("#FFDD01".toColorInt()),
+                                            // titleContentColor = MaterialTheme.colorScheme.secondary,
+                                        ),
+                                        title = {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.cm_logo_white),
+                                                contentDescription = "Logo Carris Metropolitana",
+                                                modifier = Modifier.padding(vertical = 10.dp)
+                                            )
+                                        },
+                                    )
+                                }
+                            },
+                            bottomBar = {
+                                AnimatedVisibility(
+                                    visible = bottomNavbarVisible,
+                                    enter = slideInVertically(initialOffsetY = { it }),
+                                    exit = slideOutVertically(targetOffsetY = { it })
+                                ) {
+                                    NavigationBar() {
+                                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                                        val currentDestination = navBackStackEntry?.destination
 
-//                                when(navBackStackEntry?.destination?.route) {
-//                                    Screens.Home.route -> {
-//                                        topBarVisible = true
-//                                    }
-//                                    Screens.Lines.route -> {
-//                                        topBarVisible = true
-//                                    }
-//                                    Screens.Stops.route -> {
-//                                        topBarVisible = false
-//                                    }
-//                                    Screens.More.route -> {
-//                                        topBarVisible = false
-//                                    }
-//                                }
+    //                                when(navBackStackEntry?.destination?.route) {
+    //                                    Screens.Home.route -> {
+    //                                        topBarVisible = true
+    //                                    }
+    //                                    Screens.Lines.route -> {
+    //                                        topBarVisible = true
+    //                                    }
+    //                                    Screens.Stops.route -> {
+    //                                        topBarVisible = false
+    //                                    }
+    //                                    Screens.More.route -> {
+    //                                        topBarVisible = false
+    //                                    }
+    //                                }
 
-                                    items.forEachIndexed { index, item ->
-                                        NavigationBarItem(
-                                            selected = selectedItemIndex == index,
-                                            colors = NavigationBarItemDefaults.colors(
-                                                selectedIconColor = Color.Black,
-                                                unselectedIconColor = if (isSystemInDarkTheme()) Color.LightGray else Color.Black,
-                                                selectedTextColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
-                                                unselectedTextColor = if (isSystemInDarkTheme()) Color.LightGray else Color.Black,
-                                                indicatorColor = Color("#FFDD01".toColorInt()),
-                                            ),
-                                            onClick = {
-                                                selectedItemIndex = index
+                                        items.forEachIndexed { index, item ->
+                                            NavigationBarItem(
+                                                selected = selectedItemIndex == index,
+                                                colors = NavigationBarItemDefaults.colors(
+                                                    selectedIconColor = Color.Black,
+                                                    unselectedIconColor = if (isSystemInDarkTheme()) Color.LightGray else Color.Black,
+                                                    selectedTextColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
+                                                    unselectedTextColor = if (isSystemInDarkTheme()) Color.LightGray else Color.Black,
+                                                    indicatorColor = Color("#FFDD01".toColorInt()),
+                                                ),
+                                                onClick = {
+                                                    selectedItemIndex = index
 
-//                                                bottomNavbarVisible = item.route != Screens.Splash.route
-//
-//                                                if (item.route == Screens.Home.route) {
-//                                                    topBarVisible = true
-//                                                } else {
-//                                                    topBarVisible = false
-//                                                }
+    //                                                bottomNavbarVisible = item.route != Screens.Splash.route
+    //
+    //                                                if (item.route == Screens.Home.route) {
+    //                                                    topBarVisible = true
+    //                                                } else {
+    //                                                    topBarVisible = false
+    //                                                }
 
-                                                if (item.route == Screens.Stops.route) {
-                                                    window.statusBarColor =
-                                                        Color(0x801B1B1B).toArgb()
-                                                } else {
-                                                    window.statusBarColor =
-                                                        Color.Unspecified.toArgb()
-                                                }
-
-                                                navController.navigate(item.route) {
-                                                    popUpTo(navController.graph.findStartDestination().id) {
-                                                        saveState = true
+                                                    if (item.route == Screens.Stops.route) {
+                                                        window.statusBarColor =
+                                                            Color(0x801B1B1B).toArgb()
+                                                    } else {
+                                                        window.statusBarColor =
+                                                            Color.Unspecified.toArgb()
                                                     }
-                                                    launchSingleTop = true
-                                                    restoreState = true
+
+                                                    navController.navigate(item.route) {
+                                                        popUpTo(navController.graph.findStartDestination().id) {
+                                                            saveState = true
+                                                        }
+                                                        launchSingleTop = true
+                                                        restoreState = true
+                                                    }
+                                                },
+                                                label = {
+                                                    Text(text = item.title)
+                                                },
+                                                icon = {
+                                                    Icon(
+                                                        imageVector = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
+                                                        contentDescription = item.title
+                                                    )
                                                 }
-                                            },
-                                            label = {
-                                                Text(text = item.title)
-                                            },
-                                            icon = {
-                                                Icon(
-                                                    imageVector = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
-                                                    contentDescription = item.title
-                                                )
-                                            }
-                                        )
+                                            )
 
+                                        }
                                     }
                                 }
-                            }
-                        },
-                    ) { padding ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = Screens.Splash.route,
-                        ) {
-                            composable(
-                                Screens.Splash.route
+                            },
+                        ) { padding ->
+                            NavHost(
+                                navController = navController,
+                                startDestination = Screens.Splash.route,
                             ) {
-                                LaunchedEffect(Unit) {
-                                    topBarVisible = false
-                                    bottomNavbarVisible = false
-                                }
-                                SplashScreen(navController = navController)
-                            }
-                            composable(
-                                Screens.Home.route,
-                            ) {
-                                LaunchedEffect(Unit) {
-                                    topBarVisible = true
-                                    bottomNavbarVisible = true
-                                }
-                                HomeScreen(navController, padding)
-                            }
-                            composable(
-                                Screens.Lines.route,
-                            ) {
-                                LaunchedEffect(Unit) {
-                                    topBarVisible = false
-                                    bottomNavbarVisible = true
-                                }
-                                LinesScreen(navController, padding)
-                            }
-                            composable(
-                                Screens.Stops.route,
-                            ) {
-                                LaunchedEffect(Unit) {
-                                    topBarVisible = false
-                                    bottomNavbarVisible = true
-                                }
-                                StopsScreen(navController, cmApi)
-                            }
-                            composable(
-                                Screens.More.route,
-                            ) {
-                                LaunchedEffect(Unit) {
-                                    topBarVisible = false
-                                    bottomNavbarVisible = true
-                                }
-                                MoreScreen(navController, padding, context = this@MainActivity)
-                            }
-
-
-                            animatedComposable(
-                                Screens.LineDetails.route
-                            ) {backStackEntry ->
-                                LaunchedEffect(Unit) {
-                                    bottomNavbarVisible = true
-                                }
-                                backStackEntry.arguments?.getString("lineId")
-                                    ?.let { LineDetailsView(lineId = it, navController = navController) }
-                            }
-
-                            animatedComposable(Screens.StopDetails.route) {
-                                LaunchedEffect(Unit) {
-                                    bottomNavbarVisible = true
-                                }
-                                AboutStopView(navController = navController)
-                            }
-
-
-                            animatedComposable(
-                                Screens.ENCM.route,
-                            ) {
-                                ENCMView(navController = navController)
-                            }
-
-                            animatedComposable(
-                                Screens.FAQ.route
-                            ) {
-                                FAQView(navController = navController, paddingValues = padding)
-                            }
-
-                            slideInVerticallyComposable(
-                                Screens.FavoriteItemCustomization.route
-                            ) {backStackEntry ->
-                                LaunchedEffect(Unit) {
-                                    bottomNavbarVisible = false
-                                }
-
-                                backStackEntry.arguments?.getString("favoriteId")
-                                    ?.let { favoriteId ->
-                                        backStackEntry.arguments?.getString("favoriteType")
-                                            ?.let { favoriteType ->
-                                                FavoriteItemCustomization(navController = navController, favoriteType = FavoriteType.valueOf(favoriteType), favoriteId = favoriteId)
-                                            }
+                                composable(
+                                    Screens.Splash.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        topBarVisible = false
+                                        bottomNavbarVisible = false
                                     }
-                            }
-
-                            animatedComposable(
-                                Screens.AlertsForEntity.route
-                            ) {backStackEntry ->
-                                LaunchedEffect(Unit) {
-                                    bottomNavbarVisible = false
+                                    SplashScreen(navController = navController)
+                                }
+                                composable(
+                                    Screens.Home.route,
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        topBarVisible = true
+                                        bottomNavbarVisible = true
+                                    }
+                                    HomeScreen(navController, padding)
+                                }
+                                composable(
+                                    Screens.Lines.route,
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        topBarVisible = false
+                                        bottomNavbarVisible = true
+                                    }
+                                    LinesScreen(navController, padding)
+                                }
+                                composable(
+                                    Screens.Stops.route,
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        topBarVisible = false
+                                        bottomNavbarVisible = true
+                                    }
+                                    StopsScreen(navController)
+                                }
+                                composable(
+                                    Screens.More.route,
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        topBarVisible = false
+                                        bottomNavbarVisible = true
+                                    }
+                                    MoreScreen(navController, padding, context = this@MainActivity)
                                 }
 
-                                backStackEntry.arguments?.getString("entityType")
-                                    ?.let { entityType ->
-                                        backStackEntry.arguments?.getString("entityId")
-                                            ?.let { entityId ->
-                                                AlertsView(
-                                                    alertEntities = listOf(previewAlert),
-                                                    filterFor = AlertsFilterForInformedEntities.valueOf(entityType),
-                                                    filterByEntityId = entityId,
-                                                    navController = navController
-                                                )
-                                            }
+
+                                animatedComposable(
+                                    Screens.LineDetails.route
+                                ) {backStackEntry ->
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = true
                                     }
+                                    backStackEntry.arguments?.getString("lineId")
+                                        ?.let { LineDetailsView(lineId = it, navController = navController) }
+                                }
+
+                                animatedComposable(Screens.StopDetails.route) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = true
+                                    }
+                                    AboutStopView(navController = navController)
+                                }
+
+
+                                animatedComposable(
+                                    Screens.ENCM.route,
+                                ) {
+                                    ENCMView(navController = navController)
+                                }
+
+                                animatedComposable(
+                                    Screens.FAQ.route
+                                ) {
+                                    FAQView(navController = navController, paddingValues = padding)
+                                }
+
+                                slideInVerticallyComposable(
+                                    Screens.FavoriteItemCustomization.route
+                                ) {backStackEntry ->
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+
+                                    backStackEntry.arguments?.getString("favoriteId")
+                                        ?.let { favoriteId ->
+                                            backStackEntry.arguments?.getString("favoriteType")
+                                                ?.let { favoriteType ->
+                                                    FavoriteItemCustomization(navController = navController, favoriteType = FavoriteType.valueOf(favoriteType), favoriteId = favoriteId)
+                                                }
+                                        }
+                                }
+
+                                animatedComposable(
+                                    Screens.AlertsForEntity.route
+                                ) {backStackEntry ->
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+
+                                    backStackEntry.arguments?.getString("entityType")
+                                        ?.let { entityType ->
+                                            backStackEntry.arguments?.getString("entityId")
+                                                ?.let { entityId ->
+                                                    AlertsView(
+                                                        alertEntities = listOf(previewAlert),
+                                                        filterFor = AlertsFilterForInformedEntities.valueOf(entityType),
+                                                        filterByEntityId = entityId,
+                                                        navController = navController
+                                                    )
+                                                }
+                                        }
+                                }
                             }
                         }
                     }

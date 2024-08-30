@@ -26,11 +26,10 @@ import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.MLNMapView
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.composables.components.maps.MapFloatingButton
-import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StopsScreen(navController: NavController, cmApi: CMAPI) {
+fun StopsScreen(navController: NavController) {
     var text by rememberSaveable {
         mutableStateOf("")
     }

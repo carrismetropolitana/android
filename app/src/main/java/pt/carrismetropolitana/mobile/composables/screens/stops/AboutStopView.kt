@@ -139,7 +139,7 @@ fun AboutStopView(
                 }
             }
 
-            LinesList(transitLines = dummyTransitPatterns, navController = navController)
+//            LinesList(transitLines = dummyTransitPatterns, navController = navController)
 
         }
     }

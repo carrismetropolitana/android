@@ -114,6 +114,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
         },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
+        val lines = linesManager.data.collectAsState().value // check if this keeps updating as state changes
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -121,7 +122,14 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LinesList(lines = linesManager.data.collectAsState().value, navController = navController)
+            if (lines.isEmpty()) {
+                Text(
+                    text = "Loading...",
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                LinesList(lines = lines, navController = navController)
+            }
         }
     }
 }

@@ -55,7 +55,7 @@ fun AlertItem(
                         color = Color.Black,
                         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
                     )
-                    .padding(horizontal = 16.dp, vertical = 15.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -82,14 +82,17 @@ fun AlertItem(
                 Text(text = alert.descriptionText.translation[0].text)
 
                 Spacer(modifier = Modifier.height(16.dp))
-                AsyncImage(
-                    model = alert.image.localizedImage[0].url,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(128.dp, 80.dp)
-                        .align(Alignment.Start),
-                    contentScale = ContentScale.Fit
-                )
+
+                if (alert.image.localizedImage[0].url.isNotEmpty()) {
+                    AsyncImage(
+                        model = alert.image.localizedImage[0].url,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(128.dp, 80.dp)
+                            .align(Alignment.Start),
+                        contentScale = ContentScale.Fit
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(

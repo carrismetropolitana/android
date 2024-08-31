@@ -5,8 +5,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.GtfsRtAlertEntity
 
 class AlertsManager(fetchIntervalMillis: Long? = 60_000L) : DataManager<GtfsRtAlertEntity>(
     apiCall = {
-        CMAPI.shared.getAlerts()
-            .flatMap { it.entity }
+        CMAPI.shared.getAlerts()?.entity ?: emptyList()
     },
     fetchIntervalMillis
 )

@@ -9,12 +9,12 @@ class CMAPI {
         val shared = CMAPI()
     }
 
-    suspend fun getAlerts(): List<GtfsRt> {
+    suspend fun getAlerts(): GtfsRt? {
         return try {
             CMAPINetworkService.apiService.getAlerts()
         } catch (e: Exception) {
             handleException("alerts", e)
-            emptyList()
+            null
         }
     }
 

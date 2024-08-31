@@ -10,7 +10,7 @@ import retrofit2.http.Url
 
 interface CMAPIService {
     @GET("alerts")
-    suspend fun getAlerts(): List<GtfsRt>
+    suspend fun getAlerts(): GtfsRt
 
     @GET("stops")
     suspend fun getStops(): List<Stop>
@@ -49,7 +49,9 @@ object CMAPINetworkService {
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(
-            Json.asConverterFactory("application/json; charset=utf-8".toMediaType())
+            Json {
+                ignoreUnknownKeys = true
+            }.asConverterFactory("application/json; charset=utf-8".toMediaType())
         )
         .build()
 

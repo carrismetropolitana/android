@@ -38,7 +38,6 @@ fun UserFeedbackForm(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .background(Color(0xFF2C2C2E))
             .padding(16.dp)
     ) {
@@ -56,8 +55,8 @@ fun UserFeedbackForm(
         )
         Spacer(modifier = Modifier.height(20.dp))
 
-        LazyColumn {
-            itemsIndexed(questions) { index, question ->
+        Column {
+            questions.forEachIndexed { index, question ->
                 QuestionItem(question = question)
                 if (index < questions.size - 1) {
                     Divider(
@@ -119,36 +118,36 @@ fun YesNoButton(text: String, isYes: Boolean, onClick: () -> Unit) {
     }
 }
 
+val demoUserFeedbackFormQuestions = listOf(
+    Question(
+        text = "Percursos e Paragens",
+        type = QuestionType.YesOrNo
+    ) { answer ->
+        // Handle the answer
+        println("Service enjoyment: $answer")
+    },
+    Question(
+        text = "Estimativas de Chegada",
+        type = QuestionType.YesOrNo
+    ) { answer ->
+        // Handle the answer
+        println("Recommendation: $answer")
+    },
+    Question(
+        text = "Informações no Veículo",
+        type = QuestionType.YesOrNo
+    ) { answer ->
+        // Handle the answer
+        println("Recommendation: $answer")
+    }
+)
+
 @Preview
 @Composable
 private fun UserFeedbackFormPreview() {
-    val questions = listOf(
-        Question(
-            text = "Percursos e Paragens",
-            type = QuestionType.YesOrNo
-        ) { answer ->
-            // Handle the answer
-            println("Service enjoyment: $answer")
-        },
-        Question(
-            text = "Estimativas de Chegada",
-            type = QuestionType.YesOrNo
-        ) { answer ->
-            // Handle the answer
-            println("Recommendation: $answer")
-        },
-        Question(
-            text = "Informações no Veículo",
-            type = QuestionType.YesOrNo
-        ) { answer ->
-            // Handle the answer
-            println("Recommendation: $answer")
-        }
-    )
-
     UserFeedbackForm(
         title = "Estas informações estão corretas?",
         description = "Ajude-nos a melhorar os transportes para todos.",
-        questions = questions
+        questions = demoUserFeedbackFormQuestions
     )
 }

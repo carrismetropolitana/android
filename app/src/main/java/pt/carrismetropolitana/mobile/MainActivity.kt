@@ -160,28 +160,6 @@ class MainActivity : ComponentActivity() {
                     ) {
                         val navController = rememberNavController()
                         Scaffold(
-                            topBar = {
-                                AnimatedVisibility(
-                                    visible = topBarVisible,
-                                    enter = slideInVertically(initialOffsetY = { -it }),
-                                    exit = slideOutVertically(targetOffsetY = { -it }),
-                                ) {
-                                    TopAppBar(
-                                        modifier = Modifier.height(120.dp),
-                                        colors = TopAppBarDefaults.topAppBarColors(
-                                            containerColor = Color("#FFDD01".toColorInt()),
-                                            // titleContentColor = MaterialTheme.colorScheme.secondary,
-                                        ),
-                                        title = {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.cm_logo_white),
-                                                contentDescription = "Logo Carris Metropolitana",
-                                                modifier = Modifier.padding(vertical = 10.dp)
-                                            )
-                                        },
-                                    )
-                                }
-                            },
                             bottomBar = {
                                 AnimatedVisibility(
                                     visible = bottomNavbarVisible,
@@ -280,7 +258,7 @@ class MainActivity : ComponentActivity() {
                                         topBarVisible = true
                                         bottomNavbarVisible = true
                                     }
-                                    HomeScreen(navController, padding)
+                                    HomeScreen(navController)
                                 }
                                 composable(
                                     Screens.Lines.route,
@@ -369,7 +347,7 @@ class MainActivity : ComponentActivity() {
                                             backStackEntry.arguments?.getString("entityId")
                                                 ?.let { entityId ->
                                                     AlertsView(
-                                                        alertEntities = listOf(previewAlert),
+                                                        alertEntities = alertsManager.data.collectAsState().value,
                                                         filterFor = AlertsFilterForInformedEntities.valueOf(entityType),
                                                         filterByEntityId = entityId,
                                                         navController = navController

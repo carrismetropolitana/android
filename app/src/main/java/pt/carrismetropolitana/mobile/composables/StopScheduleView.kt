@@ -57,7 +57,9 @@ val staticSchedule = listOf(
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun StopScheduleView() {
+fun StopScheduleView(
+    scheduleItems: List<ScheduleItem>,
+) {
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
 
@@ -92,9 +94,9 @@ fun StopScheduleView() {
 
         FlowRow(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
             ScheduleItem(isFirst = true, hour = "Hora", minutes = listOf(("Min")))
-            for (item in staticSchedule) {
+            for (item in scheduleItems) {
                 ScheduleItem(
-                    isLast = item == staticSchedule.last(),
+                    isLast = item == scheduleItems.last(),
                     hour = item.hour,
                     minutes = item.minutes
                 )
@@ -156,5 +158,5 @@ fun convertMillisToDate(millis: Long): String {
 @Preview
 @Composable
 fun ScheduleItemPreview() {
-    StopScheduleView()
+    StopScheduleView(staticSchedule)
 }

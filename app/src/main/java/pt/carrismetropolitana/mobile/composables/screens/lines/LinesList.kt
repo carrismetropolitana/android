@@ -24,25 +24,30 @@ fun LinesList(lines: List<Line>, navController: NavController) {
         itemsIndexed(
             items = lines,
         ) {index, line ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .clickable { navController.navigate("line_details/${line.shortName}") }
-            ) {
-                Pill(text = line.shortName, color = Color(line.color.toColorInt()), textColor = Color(line.textColor.toColorInt()), size = 60)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = line.longName,
-                    fontSize = 16.sp, // Set font size in scaled pixels (sp)
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            if (index < lines.size - 1) {
-                HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            LineItem(line, isLastInList = index == lines.size - 1, onClick = { navController.navigate("line_details/${line.shortName}") })
         }
     }
+}
+
+@Composable
+fun LineItem(line: Line, isLastInList: Boolean, onClick: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable { onClick() }
+    ) {
+        Pill(text = line.shortName, color = Color(line.color.toColorInt()), textColor = Color(line.textColor.toColorInt()), size = 60)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = line.longName,
+            fontSize = 16.sp, // Set font size in scaled pixels (sp)
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
+    }
+    if (!isLastInList) {
+        HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+    }
+    Spacer(modifier = Modifier.height(8.dp))
 }

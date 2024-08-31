@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 data class DynamicSelectTextFieldOption(
+    val id: String,  // Added id field
     val title: String,
     val subtitle: String? = null
 )
@@ -58,7 +59,7 @@ fun DynamicSelectTextField(
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option: DynamicSelectTextFieldOption ->
                 DropdownMenuItem(
-                    text = { 
+                    text = {
                         Column(modifier = Modifier.padding(vertical = 12.dp)) {
                             Text(
                                 text = option.title,
@@ -84,14 +85,17 @@ private fun DynamicSelectTextFieldPreview() {
         selectedValue = "Selected value",
         options = listOf(
             DynamicSelectTextFieldOption(
+                id = "1",
                 title = "Option 1",
                 subtitle = "Subtitle"
             ),
             DynamicSelectTextFieldOption(
+                id = "2",
                 title = "Option 2",
                 subtitle = "Subtitle"
             ),
             DynamicSelectTextFieldOption(
+                id = "3",
                 title = "Option 3",
                 subtitle = "Subtitle"
             )

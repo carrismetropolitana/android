@@ -1,6 +1,8 @@
 package pt.carrismetropolitana.mobile.composables.components.transit.pattern_path
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,63 +11,135 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.services.cmapi.Facility
 import pt.carrismetropolitana.mobile.services.cmapi.PathEntry
+import pt.carrismetropolitana.mobile.services.cmapi.PatternRealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
+import kotlin.math.exp
+
+enum class PositionInList { FIRST, MIDDLE, LAST }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PatternPathItem(
     pathItem: PathEntry,
+    pathColor: Color,
     expanded: Boolean,
+    positionInList: PositionInList,
     onClick: () -> Unit,
     onSchedulesButtonClick: () -> Unit,
     onStopDetailsButtonClick: () -> Unit,
-    nextArrivals: List<RealtimeETA>
+//    nextArrivals: List<RealtimeETA>
+    nextArrivals: List<PatternRealtimeETA>
 ) {
+    val heightInDp = animateDpAsState(
+        targetValue = if (expanded) 140.dp else 60.dp,
+        animationSpec = tween(
+            durationMillis = 300,
+        )
+    )
+
     Box(
         modifier = Modifier
+            .height(heightInDp.value)
+            .shadow(elevation = if (expanded) 30.dp else 0.dp)
+            .background(Color.White)
             .padding(horizontal = 12.dp)
             .clickable { onClick() }
     ) {
-        Row {
-            Box(
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .background(Color.Red)
-                    .width(15.dp)
-                    .height(30.dp)
-            )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 6.dp)
+        ) {
+            Box {
+                // rect
+                Column {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(
+                                RectangleShape
+                            )
+                            .background(Color.Black)
+                            .width(25.dp)
+                            .height(2.dp)
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = if (positionInList == PositionInList.FIRST) 30.dp else 0.dp,
+                                topEnd = if (positionInList == PositionInList.FIRST) 30.dp else 0.dp,
+                                bottomStart = if (positionInList == PositionInList.LAST) 30.dp else 0.dp,
+                                bottomEnd = if (positionInList == PositionInList.LAST) 30.dp else 0.dp
+                            )
+                        )
+                        .background(pathColor)
+                        .width(15.dp)
+                        .fillMaxHeight()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(18.dp))
+                        Box(
+                            Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                        )
+                    }
+                }
+            }
             Column(modifier = Modifier.weight(1f)) {
-                Text(pathItem.stop.name)
+                Text(
+                    pathItem.stop.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (expanded) 20.sp else 16.sp,
+                    maxLines = 1
+                )
                 Text(pathItem.stop.municipalityName)
 
-                AnimatedVisibility(visible = expanded) {
+                if (expanded) {
                     Column {
                         Text("13:15\t\t13:45\t\t14:15")
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             PatternPathFooterButton(text = "Horários", iconResourceId = R.drawable.phosphoricons_clock) {
-                                
+                                onSchedulesButtonClick()
                             }
                             PatternPathFooterButton(text = "Sobre a paragem", iconResourceId = R.drawable.phosphoricons_map_pin_simple_area) {
-
+                                onStopDetailsButtonClick()
                             }
                         }
                     }
@@ -122,7 +196,9 @@ fun PatternPathItemPreview() {
 
     PatternPathItem(
         pathItem = previewPathEntry,
+        pathColor = Color.Red,
         expanded = false,
+        positionInList = PositionInList.MIDDLE,
         onClick = { /*TODO*/ },
         onSchedulesButtonClick = { /*TODO*/ },
         onStopDetailsButtonClick = { /*TODO*/ },

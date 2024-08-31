@@ -4,8 +4,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -31,20 +34,31 @@ fun DatePickerField(
             onValueChange = { },
             label = { Text(label) },
             readOnly = true,
+            enabled = false,
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDatePicker = true }
-        )
-
-        if (showDatePicker) {
-            DatePickerModal(
-                initialDate = date,
-                onDateSelected = { selectedDate ->
-                    onDateSelected(selectedDate)
-                    showDatePicker = false
-                },
-                onDismiss = { showDatePicker = false }
+//                .fillMaxWidth()
+                .clickable { showDatePicker = true },
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                //For Icons
+                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
+        )
+    }
+
+    if (showDatePicker) {
+        DatePickerModal(
+            initialDate = date,
+            onDateSelected = { selectedDate ->
+                onDateSelected(selectedDate)
+                showDatePicker = false
+            },
+            onDismiss = { showDatePicker = false },
+
+            )
     }
 }

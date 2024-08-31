@@ -84,8 +84,8 @@ sealed class Screens(val route : String) {
     object News: Screens("news/{newsId}")
 
     // Common sub-destinations
-    object LineDetails: Screens("line_details/{lineId}")
-    object StopDetails: Screens("stop_details")
+    object LineDetails: Screens("line_details/{lineId}?overridePatternId={overridePatternId}")
+    object StopDetails: Screens("stop_details/{stopId}")
 
     // Favorite destinations
     object FavoriteCustomization: Screens("favorite_customization")
@@ -290,20 +290,23 @@ class MainActivity : ComponentActivity() {
 
 
                                 animatedComposable(
-                                    Screens.LineDetails.route
+                                    Screens.LineDetails.route,
                                 ) {backStackEntry ->
                                     LaunchedEffect(Unit) {
                                         bottomNavbarVisible = true
                                     }
                                     backStackEntry.arguments?.getString("lineId")
-                                        ?.let { LineDetailsView(lineId = it, navController = navController) }
+                                        ?.let { LineDetailsView(lineId = it, overrideDisplayedPatternId = backStackEntry.arguments?.getString("overridePatternId"), navController = navController, parentPadding = padding) }
                                 }
 
-                                animatedComposable(Screens.StopDetails.route) {
+                                animatedComposable(
+                                    Screens.StopDetails.route
+                                ) {
                                     LaunchedEffect(Unit) {
                                         bottomNavbarVisible = true
                                     }
-                                    AboutStopView(navController = navController)
+                                    it.arguments?.getString("stopId")
+                                        ?.let { AboutStopView(stopId = it, navController = navController, parentPadding = padding) }
                                 }
 
 

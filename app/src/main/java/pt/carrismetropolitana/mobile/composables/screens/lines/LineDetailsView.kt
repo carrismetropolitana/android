@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import pt.carrismetropolitana.mobile.LocalAlertsManager
+import pt.carrismetropolitana.mobile.LocalVehiclesManager
 import pt.carrismetropolitana.mobile.MLNMapView
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
@@ -64,12 +67,19 @@ fun LineDetailsView(
 ) {
     val context = LocalContext.current
 
+    val alertsManager = LocalAlertsManager.current
+    val vehiclesManager = LocalVehiclesManager.current
+
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
     var isDetailsVisible by remember { mutableStateOf(false) }
     var expandedBoxId by remember { mutableIntStateOf(-1) }
+
+    LaunchedEffect(Unit) {
+        vehiclesManager.startFetching()
+    }
 
     Scaffold(
         topBar = {

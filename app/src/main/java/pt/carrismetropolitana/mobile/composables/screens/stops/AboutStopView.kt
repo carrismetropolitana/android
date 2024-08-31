@@ -27,19 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
-import pt.carrismetropolitana.mobile.LinesList
 import pt.carrismetropolitana.mobile.R
-import pt.carrismetropolitana.mobile.TransitLine
 import pt.carrismetropolitana.mobile.composables.screens.lines.SquareButton
-
-
-val dummyTransitPatterns = listOf(
-    TransitLine("1523", "Agualva Cacém (Estação)", Color.White, Color("#C61D23".toColorInt())),
-    TransitLine("1109", "Carnaxide", Color.White, Color("#3D85C6".toColorInt())),
-    TransitLine("4906", "Setúbal (ITS)", Color.White, Color("#BB3E96".toColorInt())),
-//    TransitLine("CP", "Oeiras - São Pedro (Serviço Ocasional)", Color.White, Color("#2A9057".toColorInt()))
-)
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

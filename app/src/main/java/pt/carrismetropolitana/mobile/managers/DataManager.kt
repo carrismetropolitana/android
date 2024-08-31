@@ -24,11 +24,11 @@ abstract class DataManager<T : Any>(
 
         // If periodMillis is provided, start periodic fetching
         if (fetchIntervalMillis != null) {
-            startFetching(fetchIntervalMillis)
+            startFetching()
         }
     }
 
-    fun startFetching(periodMillis: Long) {
+    fun startFetching() {
         if (this.fetchIntervalMillis == null) {
             throw IllegalStateException("Periodic fetching is not supported because no interval was provided.")
         }
@@ -36,7 +36,7 @@ abstract class DataManager<T : Any>(
         fetchJob = coroutineScope.launch {
             while (isActive) {
                 fetchData()
-                delay(periodMillis)
+                delay(fetchIntervalMillis)
             }
         }
     }

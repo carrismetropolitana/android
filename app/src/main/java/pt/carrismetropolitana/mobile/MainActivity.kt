@@ -55,7 +55,10 @@ import pt.carrismetropolitana.mobile.composables.screens.more.ENCMView
 import pt.carrismetropolitana.mobile.composables.screens.more.FAQView
 import pt.carrismetropolitana.mobile.composables.screens.more.MoreScreen
 import pt.carrismetropolitana.mobile.composables.screens.stops.StopsScreen
+import pt.carrismetropolitana.mobile.managers.AlertsManager
 import pt.carrismetropolitana.mobile.managers.LinesManager
+import pt.carrismetropolitana.mobile.managers.StopsManager
+import pt.carrismetropolitana.mobile.managers.VehiclesManager
 import pt.carrismetropolitana.mobile.ui.common.animatedComposable
 import pt.carrismetropolitana.mobile.ui.common.slideInVerticallyComposable
 
@@ -95,6 +98,9 @@ sealed class Screens(val route : String) {
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     private val linesManager by lazy { LinesManager() }
+    private val stopsManager by lazy { StopsManager() }
+    private val alertsManager by lazy { AlertsManager() }
+    private val vehiclesManager by lazy { VehiclesManager() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -142,7 +148,10 @@ class MainActivity : ComponentActivity() {
                 }
 
                 CompositionLocalProvider(
-                    LocalLinesManager provides linesManager
+                    LocalLinesManager provides linesManager,
+                    LocalStopsManager provides stopsManager,
+                    LocalAlertsManager provides alertsManager,
+                    LocalVehiclesManager provides vehiclesManager
                 ) {
                     // A surface container using the 'background' color from the theme
                     Surface(

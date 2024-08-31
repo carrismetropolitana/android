@@ -9,11 +9,8 @@ import retrofit2.http.Path
 import retrofit2.http.Url
 
 interface CMAPIService {
-    @GET
-    suspend fun <T> makeGetRequest(@Url url: String): T
-
     @GET("alerts")
-    suspend fun getAlerts(): List<GtfsRtAlertEntity>
+    suspend fun getAlerts(): List<GtfsRt>
 
     @GET("stops")
     suspend fun getStops(): List<Stop>

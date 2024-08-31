@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,9 +35,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
-import pt.carrismetropolitana.mobile.LinesList
 import pt.carrismetropolitana.mobile.LocalLinesManager
-import pt.carrismetropolitana.mobile.dTransitLines
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,7 +121,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LinesList(lines = linesManager.data.value, navController = navController)
+            LinesList(lines = linesManager.data.collectAsState().value, navController = navController)
         }
     }
 }

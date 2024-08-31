@@ -48,6 +48,7 @@ data class Route(
 @Serializable
 data class Stop(
     val id: String,
+    @SerialName("stop_id") val stopId: String,
     val name: String,
     @SerialName("short_name") val shortName: String? = null,
     @SerialName("tts_name") val ttsName: String? = null,

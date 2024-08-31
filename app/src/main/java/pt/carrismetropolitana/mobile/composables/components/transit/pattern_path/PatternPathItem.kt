@@ -114,7 +114,8 @@ fun PatternPathItemPreview() {
             ),
             shortName = "a definir",
             ttsName = "Rua Elias Garcia ( Supermercado )",
-            wheelchairBoarding = "0"
+            wheelchairBoarding = "0",
+            stopId = "170491"
         ),
         stopSequence = 2
     )

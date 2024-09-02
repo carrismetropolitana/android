@@ -205,6 +205,8 @@ fun StopsScreen(navController: NavController) {
 
 
 fun filterAndSortStopArrivalsByCurrentAndFuture(etas: List<RealtimeETA>): List<RealtimeETA> {
+    var fixedEtas = listOf<RealtimeETA>()
+
     val currentAndFutureFiltering = etas.filter { eta ->
         val tripHasObservedArrival = eta.observedArrivalUnix != null
         val tripScheduledArrivalIsInThePast =
@@ -212,6 +214,14 @@ fun filterAndSortStopArrivalsByCurrentAndFuture(etas: List<RealtimeETA>): List<R
         val tripHasEstimatedArrival = eta.estimatedArrivalUnix != null
         val tripEstimatedArrivalIsInThePast =
             (eta.estimatedArrivalUnix ?: 0) <= System.currentTimeMillis() / 1000
+
+        // Fix for past midnight estimatedArrivals represented as being in the day before
+        if (tripHasEstimatedArrival && tripEstimatedArrivalIsInThePast && !tripScheduledArrivalIsInThePast) {
+            val fixedEta = eta.copy(estimatedArrivalUnix = eta.estimatedArrivalUnix?.plus(86400)) // estimatedArrival not fixed currently, but atm not being used for anything
+            fixedEtas += fixedEta
+
+            return@filter false
+        }
 
         if (tripScheduledArrivalIsInThePast) {
             return@filter false
@@ -230,7 +240,9 @@ fun filterAndSortStopArrivalsByCurrentAndFuture(etas: List<RealtimeETA>): List<R
 
     println("Filtered ${currentAndFutureFiltering.size} ETAs as currentAndFuture.")
 
-    val sorted = currentAndFutureFiltering.sortedWith { a, b ->
+    val etasToSort = currentAndFutureFiltering + fixedEtas
+
+    val sorted = etasToSort.sortedWith { a, b ->
         val estimatedArrivalA = a.estimatedArrivalUnix
         val estimatedArrivalB = b.estimatedArrivalUnix
 

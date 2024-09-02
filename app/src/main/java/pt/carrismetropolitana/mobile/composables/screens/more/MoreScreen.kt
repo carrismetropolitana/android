@@ -31,7 +31,7 @@ import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.BigRoundedButton
 import pt.carrismetropolitana.mobile.composables.WrappingCarousel
-import pt.carrismetropolitana.mobile.composables.dummyItems
+//import pt.carrismetropolitana.mobile.composables.dummyItems
 
 
 @Composable
@@ -57,7 +57,7 @@ fun MoreScreen(navController: NavController, paddingValues: PaddingValues, conte
                     .padding(24.dp),
             )
 
-            WrappingCarousel(items = dummyItems)
+//            WrappingCarousel(items = dummyItems)
 
             Spacer(modifier = Modifier.height(32.dp))
 

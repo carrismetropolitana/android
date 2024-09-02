@@ -2,6 +2,7 @@ package pt.carrismetropolitana.mobile.composables
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,20 +36,18 @@ import coil.request.ImageRequest
 
 private const val SCROLL_ANIMATION_DURATION = 5_000L
 
-data class CarouselItem (
-    val imageURL: String
-)
-
-val dummyItems = listOf(
-    CarouselItem("https://www.carrismetropolitana.pt/wp-content/uploads/2024/06/AF-Inquerito-Noticia-_-Banner.png"),
-    CarouselItem("https://www.carrismetropolitana.pt/wp-content/uploads/2024/06/Linhas-Mar_Banner.png"),
-    CarouselItem("https://www.carrismetropolitana.pt/wp-content/uploads/2024/05/AF-_-Santo-Antonio_Banner-1.png"),
-    CarouselItem("https://www.carrismetropolitana.pt/wp-content/uploads/2024/05/Banner-Mini-Passageiros.png")
-)
+interface CarouselItem {
+    val id: String
+    val imageUrl: String
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun WrappingCarousel(items: List<CarouselItem>, modifier: Modifier = Modifier) {
+fun <T : CarouselItem> WrappingCarousel(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    onItemClick: (String) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -63,45 +62,27 @@ fun WrappingCarousel(items: List<CarouselItem>, modifier: Modifier = Modifier) {
 
             HorizontalPager(
                 state = pagerState,
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-//                    .background(MaterialTheme.colors.background),
-            ) {
-                // max value is trophies.size
-                CarouselItem(it, item = items[it])
+            ) { page ->
+                CarouselItem(
+                    item = items[page],
+                    onClick = { onItemClick(items[page].id) }
+                )
             }
-
-
-//            Surface(
-//                modifier = Modifier
-//                    .padding(bottom = 8.dp)
-//                    .align(Alignment.BottomCenter),
-//                shape = CircleShape,
-//                color = Color.Black.copy(alpha = 0.5f)
-//            ) {
-//                HorizontalPagerIndicator(
-//                    pagerState = pagerState,
-//                    pageCount = realSize,
-//                    pageIndexMapping = { it % realSize },
-//                    activeColor = Color.White,
-//                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
-//                )
-//            }
 
             // Start auto-scroll effect
             LaunchedEffect(isDraggedState) {
-                // convert compose state into flow
                 snapshotFlow { isDraggedState.value }
                     .collectLatest { isDragged ->
-                        // if not isDragged start slide animation
                         if (!isDragged) {
-                            // infinity loop
                             while (true) {
-                                // duration before each scroll animation
                                 delay(SCROLL_ANIMATION_DURATION)
                                 runCatching {
-                                    pagerState.animateScrollToPage(pagerState.currentPage.inc() % pagerState.pageCount)
+                                    pagerState.animateScrollToPage(
+                                        pagerState.currentPage.inc() % pagerState.pageCount
+                                    )
                                 }
                             }
                         }
@@ -112,9 +93,9 @@ fun WrappingCarousel(items: List<CarouselItem>, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CarouselItem(
-    page: Int,
-    item: CarouselItem,
+fun <T : CarouselItem> CarouselItem(
+    item: T,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -123,56 +104,20 @@ fun CarouselItem(
             .fillMaxWidth()
             .fillMaxHeight()
             .clip(shape = RoundedCornerShape(size = 12.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onClick)
     ) {
-
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(item.imageURL)
+                .data(item.imageUrl)
                 .crossfade(true)
                 .build(),
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .clip(shape = RoundedCornerShape(size = 12.dp)),
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
-
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(color = Color.Black.copy(alpha = 0.5f))
-//                .padding(10.dp)
-//                .align(Alignment.BottomStart)
-//        ) {
-//            Text(
-//                text = trophy.location,
-//                color = Color.White,
-//                style = Typography.h6,
-//                textAlign = TextAlign.Center
-//            )
-//
-//            Text(
-//                text = trophy.year,
-//                color = Color.White,
-//                style = Typography.h4,
-//                textAlign = TextAlign.Center
-//            )
-//        }
-//
-//        Text(
-//            text = "$page",
-//            style = Typography.body1,
-//            color = Color.Black,
-//            textAlign = TextAlign.Center,
-//            modifier = Modifier
-//                .padding(10.dp)
-//                .clip(shape = RoundedCornerShape(size = 4.dp))
-//                .background(Color.White)
-//                .padding(10.dp)
-//                .align(Alignment.BottomEnd)
-//
-//        )
     }
 }

@@ -367,32 +367,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun MLNMapView(modifier: Modifier = Modifier) {
-    AndroidView(
-        factory = { context ->
-            MapLibre.getInstance(context)
-            val mapView = MapView(context)
-            mapView.onCreate(null)
-            mapView.getMapAsync { map ->
-                // Set the style after mapView was loaded
-                map.setStyle("https://maps.carrismetropolitana.pt/styles/default/style.json") {
-                    // Hide attributions
-                    map.uiSettings.isAttributionEnabled = false
-                    map.uiSettings.isLogoEnabled = false
-                    // Set the map view center
-                    map.cameraPosition = CameraPosition.Builder()
-                        .target(LatLng(38.7, -9.0))
-                        .zoom(8.9)
-                        .build()
-                }
-            }
-            mapView
-        },
-        modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {

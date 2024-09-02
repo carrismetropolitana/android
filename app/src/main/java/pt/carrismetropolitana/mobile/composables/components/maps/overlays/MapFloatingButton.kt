@@ -1,4 +1,4 @@
-package pt.carrismetropolitana.mobile.composables.components.maps
+package pt.carrismetropolitana.mobile.composables.components.maps.overlays
 
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable

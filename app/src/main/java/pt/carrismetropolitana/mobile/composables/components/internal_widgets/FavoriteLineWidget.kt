@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import pt.carrismetropolitana.mobile.MLNMapView
 import pt.carrismetropolitana.mobile.composables.components.Pill
+import pt.carrismetropolitana.mobile.composables.screens.stops.MLNMapView
 
 @Composable
 fun FavoriteLineWidget(

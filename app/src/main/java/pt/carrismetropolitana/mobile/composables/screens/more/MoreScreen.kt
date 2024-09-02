@@ -31,6 +31,8 @@ import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.BigRoundedButton
 import pt.carrismetropolitana.mobile.composables.WrappingCarousel
+import pt.carrismetropolitana.mobile.ui.theme.CMYellow
+
 //import pt.carrismetropolitana.mobile.composables.dummyItems
 
 
@@ -121,31 +123,41 @@ fun MoreScreen(navController: NavController, paddingValues: PaddingValues, conte
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.padding(12.dp)
             ) {
-                BigRoundedButton(
-                    text = "Carregar o Passe",
-                    icon = ImageVector.vectorResource(R.drawable.phosphoricons_credit_card_duotone),
-                    iconContentDescription = "Credit Card Icon",
-                    iconTint = Color.Red
-                ) {
-                    println("Button pressed")
-                }
-                BigRoundedButton(
-                    text = "Cartões e Descontos",
-                    icon = ImageVector.vectorResource(R.drawable.phosphoricons_lightning_duotone),
-                    iconContentDescription = "Lightning Icon",
-                    iconTint = Color.Red
-                ) {
-                    println("Button pressed")
-                }
+//                BigRoundedButton(
+//                    text = "Carregar o Passe",
+//                    icon = ImageVector.vectorResource(R.drawable.phosphoricons_credit_card_duotone),
+//                    iconContentDescription = "Credit Card Icon",
+//                    iconTint = Color.Red
+//                ) {
+//                    println("Button pressed")
+//                }
+//                BigRoundedButton(
+//                    text = "Cartões e Descontos",
+//                    icon = ImageVector.vectorResource(R.drawable.phosphoricons_lightning_duotone),
+//                    iconContentDescription = "Lightning Icon",
+//                    iconTint = Color.Red
+//                ) {
+//                    println("Button pressed")
+//                }
                 BigRoundedButton(
                     text = "Tarifários",
                     icon = ImageVector.vectorResource(R.drawable.phosphoricons_coins_duotone),
                     iconTint = Color.Red,
-                    iconContentDescription = "Support Agent Icon"
+                    iconContentDescription = "Coins Icon",
+                    externalLink = true
                 ) {
-                    println("Button pressed")
                     CustomTabsIntent.Builder().build()
-                        .launchUrl(context, Uri.parse("https://www.carrismetropolitana.pt/apoio/"))
+                        .launchUrl(context, Uri.parse("https://www.carrismetropolitana.pt/tarifarios/"))
+                }
+                BigRoundedButton(
+                    text = "navegante",
+                    icon = ImageVector.vectorResource(R.drawable.navegante_card_icon),
+                    iconTint = CMYellow,
+                    iconContentDescription = "Ícone Cartão Navegante",
+                    externalLink = true
+                ) {
+                    CustomTabsIntent.Builder().build()
+                        .launchUrl(context, Uri.parse("https://www.navegante.pt/"))
                 }
             }
 

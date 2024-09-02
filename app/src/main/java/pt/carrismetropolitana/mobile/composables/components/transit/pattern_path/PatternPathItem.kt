@@ -3,6 +3,7 @@ package pt.carrismetropolitana.mobile.composables.components.transit.pattern_pat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,6 +32,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,7 +62,7 @@ fun PatternPathItem(
     nextArrivals: List<PatternRealtimeETA>
 ) {
     val heightInDp = animateDpAsState(
-        targetValue = if (expanded) 140.dp else 60.dp,
+        targetValue = if (expanded) 180.dp else 60.dp,
         animationSpec = tween(
             durationMillis = 300,
         )
@@ -80,7 +84,7 @@ fun PatternPathItem(
             Box {
                 // rect
                 Column {
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
                     Box(
                         modifier = Modifier
                             .clip(
@@ -93,6 +97,8 @@ fun PatternPathItem(
                 }
                 Box(
                     modifier = Modifier
+                        .padding(top = if (positionInList == PositionInList.FIRST) 10.dp else 0.dp)
+                        .padding(bottom = if (positionInList == PositionInList.LAST) if (expanded) 110.dp else 30.dp else 0.dp)
                         .clip(
                             RoundedCornerShape(
                                 topStart = if (positionInList == PositionInList.FIRST) 30.dp else 0.dp,
@@ -110,7 +116,7 @@ fun PatternPathItem(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(if (positionInList == PositionInList.FIRST) 6.dp else 18.dp))
                         Box(
                             Modifier
                                 .size(6.dp)
@@ -120,14 +126,41 @@ fun PatternPathItem(
                     }
                 }
             }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    pathItem.stop.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = if (expanded) 20.sp else 16.sp,
-                    maxLines = 1
-                )
-                Text(pathItem.stop.municipalityName)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column {
+                    Text(
+                        pathItem.stop.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = if (expanded) 20.sp else 16.sp,
+                        maxLines = 1
+                    )
+                    Text(pathItem.stop.municipalityName)
+                }
+
+                if (expanded) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        pathItem.stop.facilities.forEach {
+                            val facilityIconResourceId = getIconResourceIdForFacility(it)
+                            val facilityName = it.name
+
+                            facilityIconResourceId?.let {
+                                Image(
+                                    imageVector = ImageVector.vectorResource(
+                                        id = it
+                                    ),
+                                    contentDescription = "Nearby facility: $facilityName",
+                                    Modifier.size(30.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
 
                 if (expanded) {
                     Column {
@@ -149,6 +182,20 @@ fun PatternPathItem(
     }
 }
 
+fun getIconResourceIdForFacility(facility: Facility): Int? {
+    return when (facility) {
+        Facility.School -> R.drawable.cm_facility_school
+        Facility.Boat -> R.drawable.cm_facility_boat
+        Facility.Subway -> R.drawable.cm_facility_subway
+        Facility.Train -> R.drawable.cm_facility_train
+        Facility.Hospital -> null
+        Facility.Shopping -> R.drawable.cm_facility_shopping
+        Facility.TransitOffice -> R.drawable.cm_facility_transit_office
+        Facility.LightRail -> R.drawable.cm_facility_light_rail
+        Facility.BikeSharing -> null
+    }
+}
+
 @Preview
 @Composable
 fun PatternPathItemPreview() {
@@ -159,7 +206,7 @@ fun PatternPathItemPreview() {
         stop = Stop(
             districtId = "11",
             districtName = "Lisboa",
-            facilities = listOf(Facility.School),
+            facilities = listOf(Facility.School, Facility.Train, Facility.Subway),
             id = "170491",
             lat = "38.768486",
             lines = listOf(
@@ -197,8 +244,8 @@ fun PatternPathItemPreview() {
     PatternPathItem(
         pathItem = previewPathEntry,
         pathColor = Color.Red,
-        expanded = false,
-        positionInList = PositionInList.MIDDLE,
+        expanded = true,
+        positionInList = PositionInList.FIRST,
         onClick = { /*TODO*/ },
         onSchedulesButtonClick = { /*TODO*/ },
         onStopDetailsButtonClick = { /*TODO*/ },

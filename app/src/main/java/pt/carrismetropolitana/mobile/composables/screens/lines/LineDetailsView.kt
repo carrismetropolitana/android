@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,12 +40,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +58,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import pt.carrismetropolitana.mobile.LocalAlertsManager
 import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.LocalVehiclesManager
-import pt.carrismetropolitana.mobile.MLNMapView
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.ScheduleItem
@@ -64,7 +66,10 @@ import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.composables.components.common.DynamicSelectTextField
 import pt.carrismetropolitana.mobile.composables.components.common.DynamicSelectTextFieldOption
 import pt.carrismetropolitana.mobile.composables.components.common.date_picker.DatePickerField
+import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsFilterForInformedEntities
+import pt.carrismetropolitana.mobile.composables.components.transit.alerts.filterAlertEntitiesForInformedEntity
 import pt.carrismetropolitana.mobile.composables.components.transit.pattern_path.PatternPath
+import pt.carrismetropolitana.mobile.composables.screens.stops.MLNMapView
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.Pattern
 import pt.carrismetropolitana.mobile.services.cmapi.Route
@@ -103,12 +108,15 @@ fun LineDetailsView(
 
     var selectedDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
 
+    var alertsCountForLine by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(Unit) {
         if (line == null) return@LaunchedEffect
 
+        alertsCountForLine = filterAlertEntitiesForInformedEntity(alertsManager.data.value, AlertsFilterForInformedEntities.LINE, line.id).count() // TODO: this is being done twice
+
         for (routeId in line.routes) {
-            val route = CMAPI.shared.getRoute(routeId)
-            if (route == null) continue
+            val route = CMAPI.shared.getRoute(routeId) ?: continue
             routes += route
 
 
@@ -183,7 +191,7 @@ fun LineDetailsView(
                     top = paddingValues.calculateTopPadding(),
                     bottom = parentPadding.calculateBottomPadding()
                 ),
-            ) {
+            ) { // header
                 Column(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
 
@@ -284,13 +292,38 @@ fun LineDetailsView(
                     },
                     sheetState = sheetState,
                 ) {
-                    StopScheduleView(
-                        scheduleItems = getScheduleItemsForStop(
-                            selectedPattern?.trips ?: listOf(),
-                            selectedStopIdForSchedule ?: "",
-                            selectedDate
-                        )
+                    val scheduleItems = getScheduleItemsForStop(
+                        selectedPattern?.trips ?: listOf(),
+                        selectedStopIdForSchedule ?: "",
+                        selectedDate
                     )
+
+                    if (scheduleItems.isEmpty()) {
+                        Column (
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.phosphoricons_calendar_slash),
+                                contentDescription = "Calendar Slash Icon",
+                                Modifier.size(64.dp)
+                            )
+                            Text("Sem horários para a data selecionada",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp
+                            )
+                            Text("Experimente selecionar uma data mais próxima da atual.",
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 44.dp)
+                            )
+                        }
+                    } else {
+                        StopScheduleView(
+                            scheduleItems
+                        )
+                    }
 
 //                Button(onClick = {
 //                    scope.launch { sheetState.hide() }.invokeOnCompletion {

@@ -92,7 +92,7 @@ fun StopScheduleView(
 //                .height(64.dp)
 //        )
 
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
             ScheduleItem(isFirst = true, hour = "Hora", minutes = listOf(("Min")))
             for (item in scheduleItems) {
                 ScheduleItem(

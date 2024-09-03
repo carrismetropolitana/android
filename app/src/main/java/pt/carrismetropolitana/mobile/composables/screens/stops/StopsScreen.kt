@@ -58,6 +58,7 @@ import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.composables.components.maps.StopsMapView
 import pt.carrismetropolitana.mobile.composables.components.maps.overlays.MapFloatingButton
+import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsList
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
@@ -82,6 +83,20 @@ fun StopsScreen(navController: NavController) {
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     val selectedStopId = rememberSaveable { mutableStateOf<String?>(null) }
+
+    var searchFilteredStops by rememberSaveable { mutableStateOf<List<Stop>>(listOf()) }
+
+    LaunchedEffect(text) {
+        if (text.isNotEmpty()) {
+            searchFilteredStops = stopsManager.data.value.filter {
+                it.name.contains(text, true)
+                        || it.id.contains(text, true)
+                        || it.ttsName?.contains(text, true) ?: false
+            }
+        } else {
+            searchFilteredStops = listOf()
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -132,12 +147,7 @@ fun StopsScreen(navController: NavController) {
                 modifier = Modifier
                     .align(Alignment.TopCenter)
             ) {
-                Row {
-                    Column {
-                        Text("Alameda Edgar Cardoso")
-                        Text(text = "Lisboa")
-                    }
-                }
+                StopsList(stops = searchFilteredStops)
             }
 
 //            Column(

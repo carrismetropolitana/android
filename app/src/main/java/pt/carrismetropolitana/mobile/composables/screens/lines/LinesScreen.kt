@@ -59,11 +59,10 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
     var searchFilteredLines by remember { mutableStateOf(listOf<Line>()) }
 
     LaunchedEffect(text) {
-        val normalizedSearchText = text.lowercase()
         if (text.isNotEmpty()) {
             searchFilteredLines = linesManager.data.value.filter {
-                it.shortName.contains(normalizedSearchText, true)
-                        || it.longName.contains(normalizedSearchText, true)
+                it.shortName.contains(text, true)
+                        || it.longName.contains(text, true)
             }
         } else {
             searchFilteredLines = listOf()

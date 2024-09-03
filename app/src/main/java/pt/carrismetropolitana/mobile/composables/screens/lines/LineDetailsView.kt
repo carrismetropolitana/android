@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -138,6 +139,16 @@ fun LineDetailsView(
         }
 
         vehiclesManager.startFetching()
+    }
+
+    LaunchedEffect(selectedPattern) {
+        if (shape != null && shape!!.id != selectedPattern!!.shapeId) {
+            shape = CMAPI.shared.getShape(selectedPattern!!.shapeId)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { vehiclesManager.stopFetching() }
     }
 
     Scaffold(
@@ -284,7 +295,7 @@ fun LineDetailsView(
                             shape = shape!!,
                             lineColorHex = line.color,
                             stops = selectedPattern?.path?.map { it.stop } ?: listOf(),
-                            vehicles = vehiclesManager.data.collectAsState().value.filter { it.routeId == selectedPattern?.routeId },
+                            vehicles = vehiclesManager.data.collectAsState().value.filter { it.patternId == selectedPattern?.id },
                             onMapReady = { },
                             onStopClick = { stopId ->
                                 println("Stop clicked: $stopId")

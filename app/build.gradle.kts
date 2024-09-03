@@ -87,7 +87,11 @@ dependencies {
 
     implementation("androidx.browser:browser:1.8.0")
 
+//    implementation("androidx.webkit:webkit:1.5.0")
+
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
 }

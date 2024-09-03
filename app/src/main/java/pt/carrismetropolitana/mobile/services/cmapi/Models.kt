@@ -172,13 +172,13 @@ data class Vehicle(
 
 @Serializable
 data class GeoJSON(
-    val type: String = "Feature",
-    // val properties: SomeType?,
+    val type: String,
+    val properties: Map<String, String>,
     val geometry: Geometry
 ) {
     @Serializable
     data class Geometry(
-        val type: String = "LineString",
+        val type: String,
         val coordinates: List<List<Double>>
     )
 }

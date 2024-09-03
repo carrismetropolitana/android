@@ -66,6 +66,7 @@ import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.composables.components.common.DynamicSelectTextField
 import pt.carrismetropolitana.mobile.composables.components.common.DynamicSelectTextFieldOption
 import pt.carrismetropolitana.mobile.composables.components.common.date_picker.DatePickerField
+import pt.carrismetropolitana.mobile.composables.components.maps.PatternMapView
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsFilterForInformedEntities
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.filterAlertEntitiesForInformedEntity
 import pt.carrismetropolitana.mobile.composables.components.transit.pattern_path.PatternPath
@@ -278,10 +279,20 @@ fun LineDetailsView(
                             )
                         }
                     }
-                    MLNMapView(
-                        modifier = Modifier
-                            .height(height = 200.dp)
-                    )
+                    if (shape != null && selectedPattern != null) {
+                        PatternMapView(
+                            shape = shape!!,
+                            lineColorHex = line.color,
+                            stops = selectedPattern?.path?.map { it.stop } ?: listOf(),
+                            vehicles = vehiclesManager.data.collectAsState().value.filter { it.routeId == selectedPattern?.routeId },
+                            onMapReady = { },
+                            onStopClick = { stopId ->
+                                println("Stop clicked: $stopId")
+                            },
+                            modifier = Modifier
+                                .height(height = 200.dp)
+                        )
+                    }
                 }
             }
 
@@ -300,7 +311,9 @@ fun LineDetailsView(
 
                     if (scheduleItems.isEmpty()) {
                         Column (
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 24.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {

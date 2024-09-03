@@ -53,6 +53,7 @@ import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
 import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.LocalStopsManager
+import pt.carrismetropolitana.mobile.LocalVehiclesManager
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.components.Pill
@@ -68,6 +69,7 @@ import java.util.Locale
 @Composable
 fun StopsScreen(navController: NavController) {
     val stopsManager = LocalStopsManager.current
+    val vehiclesManager = LocalVehiclesManager.current
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -204,8 +206,30 @@ fun StopsScreen(navController: NavController) {
                             )
                         )
                     },
-                    onArrivalClick = {
+                    onArrivalClick = { arrival ->
                         showBottomSheet = false
+                        if (arrival.estimatedArrivalUnix != null && arrival.vehicleId != null) {
+                            val vehicle = vehiclesManager.data.value.firstOrNull { it.id == arrival.vehicleId }
+                            if (vehicle != null) {
+//                                navController.navigate(
+//                                    Screens.VehicleRealtimeDetails.route.replace(
+//                                        "{vehicleId}",
+//                                        arrival.vehicleId
+//                                    )
+//                                )
+                                return@StopDetailsSheetView
+                            }
+
+                            // vehicle not found
+                        }
+
+                        // when not realtime or if realtime but no vehicle found, open line details
+                        navController.navigate(
+                            Screens.LineDetails.route.replace(
+                                "{lineId}",
+                                arrival.lineId
+                            )
+                        )
                     }
                 )
             }

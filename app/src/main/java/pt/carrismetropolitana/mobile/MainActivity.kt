@@ -43,6 +43,7 @@ import org.maplibre.android.maps.MapView
 //import pt.carrismetropolitana.mobile.composables.FavoriteCustomizationView
 import pt.carrismetropolitana.mobile.composables.FavoriteItemCustomization
 import pt.carrismetropolitana.mobile.composables.FavoriteType
+import pt.carrismetropolitana.mobile.composables.components.news.NewsView
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsFilterForInformedEntities
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsView
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.previewAlert
@@ -81,7 +82,7 @@ sealed class Screens(val route : String) {
     // More screen sub-destinations
     object ENCM: Screens("encm")
     object FAQ: Screens("faq")
-    object News: Screens("news/{newsId}")
+    object News: Screens("news?url={url}")
 
     // Common sub-destinations
     object LineDetails: Screens("line_details/{lineId}?overridePatternId={overridePatternId}")
@@ -356,6 +357,18 @@ class MainActivity : ComponentActivity() {
                                                         navController = navController
                                                     )
                                                 }
+                                        }
+                                }
+
+                                animatedComposable(
+                                    Screens.News.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+                                    it.arguments?.getString("url")
+                                        ?.let { url ->
+                                            NewsView(newsUrl = url, navController = navController)
                                         }
                                 }
                             }

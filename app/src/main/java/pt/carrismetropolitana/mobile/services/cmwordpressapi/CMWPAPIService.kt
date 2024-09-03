@@ -13,7 +13,7 @@ interface CMWPAPIService {
     suspend fun getNews(@Query("per_page") perPage: Int): List<News>
 
     @GET("media/{mediaId}")
-    suspend fun getMediaURL(@Path("mediaId") mediaId: Int): String
+    suspend fun getMedia(@Path("mediaId") mediaId: Int): Media
 }
 
 object CMWPAPINetworkService {

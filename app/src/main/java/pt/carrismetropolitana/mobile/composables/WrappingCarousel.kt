@@ -33,68 +33,80 @@ import kotlinx.coroutines.flow.collectLatest
 import java.net.URL
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import pt.carrismetropolitana.mobile.ui.animations.shimmerEffect
 
 private const val SCROLL_ANIMATION_DURATION = 5_000L
 
-interface CarouselItem {
-    val id: String
+data class CarouselItem(
+    val id: String,
     val imageUrl: String
-}
+)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun <T : CarouselItem> WrappingCarousel(
-    items: List<T>,
+fun WrappingCarousel(
+    items: List<CarouselItem>,
     modifier: Modifier = Modifier,
-    onItemClick: (String) -> Unit
+    onItemClick: (itemId: String) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        ) {
-            val pagerState = rememberPagerState(pageCount = { items.size })
-            val isDraggedState = pagerState.interactionSource.collectIsDraggedAsState()
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
+        if (items.isEmpty()) {
+            Box(
+                modifier = modifier
+                    .padding(horizontal = 16.dp)
                     .fillMaxWidth()
-                    .fillMaxHeight()
-            ) { page ->
-                CarouselItem(
-                    item = items[page],
-                    onClick = { onItemClick(items[page].id) }
-                )
-            }
+                    .height(200.dp)
+                    .clip(shape = RoundedCornerShape(size = 12.dp))
+                    .shimmerEffect()
+            )
+        } else {
+            Box(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                val pagerState = rememberPagerState(pageCount = { items.size })
+                val isDraggedState = pagerState.interactionSource.collectIsDraggedAsState()
 
-            // Start auto-scroll effect
-            LaunchedEffect(isDraggedState) {
-                snapshotFlow { isDraggedState.value }
-                    .collectLatest { isDragged ->
-                        if (!isDragged) {
-                            while (true) {
-                                delay(SCROLL_ANIMATION_DURATION)
-                                runCatching {
-                                    pagerState.animateScrollToPage(
-                                        pagerState.currentPage.inc() % pagerState.pageCount
-                                    )
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) { page ->
+                    CarouselItem(
+                        item = items[page],
+                        onClick = { onItemClick(items[page].id) }
+                    )
+                }
+
+                // Start auto-scroll effect
+                LaunchedEffect(isDraggedState) {
+                    snapshotFlow { isDraggedState.value }
+                        .collectLatest { isDragged ->
+                            if (!isDragged) {
+                                while (true) {
+                                    delay(SCROLL_ANIMATION_DURATION)
+                                    runCatching {
+                                        pagerState.animateScrollToPage(
+                                            pagerState.currentPage.inc() % pagerState.pageCount
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun <T : CarouselItem> CarouselItem(
-    item: T,
+fun CarouselItem(
+    item: CarouselItem,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

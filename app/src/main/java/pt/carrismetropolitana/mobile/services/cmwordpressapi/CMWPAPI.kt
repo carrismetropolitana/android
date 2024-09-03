@@ -16,9 +16,9 @@ class CMWPAPI {
         }
     }
 
-    suspend fun getMediaURL(mediaId: Int): String? {
+    suspend fun getMedia(mediaId: Int): Media? {
         return try {
-            CMWPAPINetworkService.apiService.getMediaURL(mediaId)
+            CMWPAPINetworkService.apiService.getMedia(mediaId)
         } catch (e: Exception) {
             handleException("media $mediaId", e)
             null

@@ -16,6 +16,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +37,9 @@ import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.BigRoundedButton
 import pt.carrismetropolitana.mobile.composables.WrappingCarousel
+import pt.carrismetropolitana.mobile.composables.components.news.NewsCarousel
+import pt.carrismetropolitana.mobile.services.cmwordpressapi.CMWPAPI
+import pt.carrismetropolitana.mobile.services.cmwordpressapi.News
 import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 
 //import pt.carrismetropolitana.mobile.composables.dummyItems
@@ -38,6 +47,12 @@ import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 
 @Composable
 fun MoreScreen(navController: NavController, paddingValues: PaddingValues, context: Context) {
+    var news by remember { mutableStateOf(emptyList<News>()) }
+
+    LaunchedEffect(Unit) {
+        news = CMWPAPI.shared.getNews()
+    }
+
     Scaffold { innerPaddingValues ->
         Column(
             modifier = Modifier
@@ -59,7 +74,12 @@ fun MoreScreen(navController: NavController, paddingValues: PaddingValues, conte
                     .padding(24.dp),
             )
 
-//            WrappingCarousel(items = dummyItems)
+            NewsCarousel(
+                news = news,
+                onNewsClick = { news ->
+                    navController.navigate("news?url=${news.link}")
+                }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 

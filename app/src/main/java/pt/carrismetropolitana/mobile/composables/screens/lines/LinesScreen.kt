@@ -23,9 +23,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LocalLinesManager
+import pt.carrismetropolitana.mobile.services.cmapi.Line
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +55,20 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
     }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    var searchFilteredLines by remember { mutableStateOf(listOf<Line>()) }
+
+    LaunchedEffect(text) {
+        val normalizedSearchText = text.lowercase()
+        if (text.isNotEmpty()) {
+            searchFilteredLines = linesManager.data.value.filter {
+                it.shortName.contains(normalizedSearchText, true)
+                        || it.longName.contains(normalizedSearchText, true)
+            }
+        } else {
+            searchFilteredLines = listOf()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -108,7 +125,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
                         .padding(top = if (active) parentPaddingValues.calculateTopPadding() else 0.dp),
                     windowInsets = WindowInsets(0, 0, 0, 0)
                 ) {
-
+                    LinesList(lines = searchFilteredLines, navController = navController)
                 }
             }
         },

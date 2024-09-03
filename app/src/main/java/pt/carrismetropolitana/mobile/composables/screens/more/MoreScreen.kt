@@ -171,7 +171,7 @@ fun MoreScreen(navController: NavController, paddingValues: PaddingValues, conte
                 }
                 BigRoundedButton(
                     text = "navegante",
-                    icon = ImageVector.vectorResource(R.drawable.navegante_card_icon),
+                    icon = ImageVector.vectorResource(R.drawable.navegante_card_icon_duotone),
                     iconTint = CMYellow,
                     iconContentDescription = "Ícone Cartão Navegante",
                     externalLink = true

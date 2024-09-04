@@ -1,6 +1,7 @@
 package pt.carrismetropolitana.mobile.composables.components.maps.overlays
 
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -11,6 +12,6 @@ fun MapFloatingButton(
     onClick: () -> Unit
 ) {
     FloatingActionButton(onClick = { onClick() }) {
-        ImageVector.vectorResource(iconResourceId)
+        Icon(imageVector = ImageVector.vectorResource(iconResourceId), contentDescription = "Map Floating Button")
     }
 }

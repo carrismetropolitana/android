@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
@@ -19,12 +20,12 @@ import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.services.cmapi.Line
 
 @Composable
-fun LinesList(lines: List<Line>, navController: NavController) {
+fun LinesList(lines: List<Line>, onLineClick: (lineId: String) -> Unit) {
     LazyColumn {
         itemsIndexed(
             items = lines,
         ) {index, line ->
-            LineItem(line, isLastInList = index == lines.size - 1, onClick = { navController.navigate("line_details/${line.shortName}") })
+            LineItem(line, isLastInList = index == lines.size - 1, onClick = { onLineClick(line.id) })
         }
     }
 }
@@ -43,6 +44,8 @@ fun LineItem(line: Line, isLastInList: Boolean, onClick: () -> Unit) {
             text = line.longName,
             fontSize = 16.sp, // Set font size in scaled pixels (sp)
             fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)
         )
     }

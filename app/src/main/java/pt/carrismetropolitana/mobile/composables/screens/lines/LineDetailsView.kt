@@ -57,6 +57,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.firstOrNull
 import pt.carrismetropolitana.mobile.LocalAlertsManager
+import pt.carrismetropolitana.mobile.LocalFavoritesManager
 import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.LocalVehiclesManager
 import pt.carrismetropolitana.mobile.R
@@ -78,6 +79,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.Route
 import pt.carrismetropolitana.mobile.services.cmapi.ScheduleEntry
 import pt.carrismetropolitana.mobile.services.cmapi.Shape
 import pt.carrismetropolitana.mobile.services.cmapi.Trip
+import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -94,6 +96,7 @@ fun LineDetailsView(
     val alertsManager = LocalAlertsManager.current
     val vehiclesManager = LocalVehiclesManager.current
     val linesManager = LocalLinesManager.current
+    val favoritesManager = LocalFavoritesManager.current
 
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -228,8 +231,9 @@ fun LineDetailsView(
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
+                            val favorited = favoritesManager.isFavorited(line.id, FavoriteType.PATTERN)
                             SquareButton(
-                                icon = ImageVector.vectorResource(R.drawable.phosphoricons_star_fill),
+                                icon = ImageVector.vectorResource(if (favorited) R.drawable.phosphoricons_star_fill else R.drawable.phosphoricons_star),
                                 iconTint = Color("#ffcc00".toColorInt()),
                                 iconContentDescription = "Favorite",
                                 size = 60,
@@ -237,7 +241,7 @@ fun LineDetailsView(
                                     navController.navigate(
                                         Screens.FavoriteItemCustomization.route.replace(
                                             "{favoriteType}",
-                                            "LINE"
+                                            FavoriteType.PATTERN.name
                                         ).replace("{favoriteId}", lineId)
                                     )
                                 })

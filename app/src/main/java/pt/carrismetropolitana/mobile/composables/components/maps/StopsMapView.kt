@@ -9,33 +9,39 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
-import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 import org.maplibre.android.style.expressions.Expression.interpolate
 import org.maplibre.android.style.expressions.Expression.linear
 import org.maplibre.android.style.expressions.Expression.stop
 import org.maplibre.android.style.expressions.Expression.zoom
 import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.Property
-import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.PropertyFactory.circleColor
 import org.maplibre.android.style.layers.PropertyFactory.circlePitchAlignment
 import org.maplibre.android.style.layers.PropertyFactory.circleRadius
 import org.maplibre.android.style.layers.PropertyFactory.circleStrokeColor
 import org.maplibre.android.style.layers.PropertyFactory.circleStrokeWidth
-import org.maplibre.android.style.layers.SymbolLayer
+import org.maplibre.android.style.layers.RasterLayer
 import org.maplibre.android.style.sources.GeoJsonSource
+import org.maplibre.android.style.sources.RasterSource
+import org.maplibre.android.style.sources.TileSet
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
 
+enum class MapVisualStyle {
+    MAP, SATELLITE
+}
+
 @Composable
 fun StopsMapView(
     modifier: Modifier = Modifier,
     stops: List<Stop>,
+    mapVisualStyle: MapVisualStyle = MapVisualStyle.MAP,
     onMapReady: (MapLibreMap) -> Unit = {},
     onStopClick: (stopId: String) -> Unit = {}
 ) {
@@ -56,6 +62,8 @@ fun StopsMapView(
                             .target(LatLng(38.7, -9.0))
                             .zoom(8.9)
                             .build()
+
+                        setVisualStyle(mapVisualStyle, style)
 
                         // Add stops source
                         val geoJsonSource = GeoJsonSource("stops-source", createGeoJsonFromStops(stops))
@@ -110,6 +118,8 @@ fun StopsMapView(
                 mapboxMap.getStyle { style ->
                     val geoJsonSource = style.getSourceAs<GeoJsonSource>("stops-source")
                     geoJsonSource?.setGeoJson(createGeoJsonFromStops(stops))
+
+                    setVisualStyle(mapVisualStyle, style)
                 }
             }
         }
@@ -118,6 +128,7 @@ fun StopsMapView(
 
 @Composable
 fun rememberMapViewWithLifecycle(context: Context): MapView {
+    MapLibre.getInstance(context)
     val mapView = remember { MapView(context) }
     DisposableEffect(mapView) {
         mapView.onStart()
@@ -142,4 +153,33 @@ fun createGeoJsonFromStops(stops: List<Stop>): FeatureCollection {
         }
     }
     return FeatureCollection.fromFeatures(features)
+}
+
+fun setVisualStyle(mapVisualStyle: MapVisualStyle, style: Style) {
+    if (mapVisualStyle == MapVisualStyle.MAP) {
+        if (style.getLayer("satellite-layer") != null) {
+            style.removeLayer("satellite-layer")
+        }
+    } else {
+        val tileSet = TileSet(
+            "tileset",
+            "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        )
+
+        tileSet.minZoom = 5f
+        tileSet.maxZoom = 18f
+        tileSet.attribution = "Esri, Maxar, Earthstar Geographics, and the GIS User Community"
+
+        val satelliteTilesSource = RasterSource(
+            id = "satellite-source",
+            tileSet = tileSet,
+            tileSize = 256
+        )
+
+        if (style.getSource("satellite-source") == null) style.addSource(satelliteTilesSource)
+
+        val satelliteLayer = RasterLayer("satellite-layer", "satellite-source")
+
+        style.addLayerBelow(satelliteLayer, "stops-layer")
+    }
 }

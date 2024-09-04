@@ -2,6 +2,7 @@ package pt.carrismetropolitana.mobile.composables.components.transit.stops
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,7 @@ import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 @Composable
 fun StopsListItem(
     stop: Stop,
+    onStopClick: (stopId: String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -39,6 +41,7 @@ fun StopsListItem(
             .clip(RoundedCornerShape(15.dp))
             .background(CMSystemBackground100)
             .border(1.dp, CMSystemBorder100, shape = RoundedCornerShape(15.dp))
+            .clickable { onStopClick(stop.id) }
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -146,6 +149,7 @@ private fun StopsListItemPreview() {
             ttsName = "Rua Elias Garcia ( Supermercado )",
             wheelchairBoarding = "0",
             stopId = "170491"
-        )
+        ),
+        onStopClick = {}
     )
 }

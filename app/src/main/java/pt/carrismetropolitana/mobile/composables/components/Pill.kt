@@ -20,21 +20,24 @@ fun Pill(
     text: String,
     color: Color,
     textColor: Color,
-    size: Int
+    size: Int,
+    modifier: Modifier = Modifier
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .background(color = color, shape = RoundedCornerShape(24.dp))
-            .width(72.dp)
-    ) {
-        Text(
-            text = text,
-            color = textColor,
-            fontSize = 18.sp, // Set font size in scaled pixels (sp)
-            fontWeight = FontWeight.Black,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-        )
+    Box(modifier) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .background(color = color, shape = RoundedCornerShape(24.dp))
+                .width(72.dp)
+        ) {
+            Text(
+                text = text,
+                color = textColor,
+                fontSize = 18.sp, // Set font size in scaled pixels (sp)
+                fontWeight = FontWeight.Black,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+        }
     }
 }
 

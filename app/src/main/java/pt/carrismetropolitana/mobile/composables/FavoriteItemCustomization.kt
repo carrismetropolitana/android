@@ -1,31 +1,44 @@
 package pt.carrismetropolitana.mobile.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,26 +46,83 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import pt.carrismetropolitana.mobile.LocalFavoritesManager
+import pt.carrismetropolitana.mobile.LocalLinesManager
+import pt.carrismetropolitana.mobile.LocalStopsManager
+import pt.carrismetropolitana.mobile.ui.theme.CMSystemBackground100
+import pt.carrismetropolitana.mobile.R
+import pt.carrismetropolitana.mobile.composables.components.Pill
+import pt.carrismetropolitana.mobile.composables.screens.lines.LineItem
+import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
+import pt.carrismetropolitana.mobile.services.cmapi.Pattern
+import pt.carrismetropolitana.mobile.services.favorites.FavoriteItem
+import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
+import pt.carrismetropolitana.mobile.ui.theme.CMSystemBorder100
 
-enum class FavoriteType {
-    LINE,
-    STOP
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteItemCustomization(
     navController: NavController,
     favoriteType: FavoriteType,
-    favoriteId: String
+    favoriteId: String?
 ) {
+    val linesManager = LocalLinesManager.current
+    val stopsManager = LocalStopsManager.current
+    val favoritesManager = LocalFavoritesManager.current
+
     var receiveNotifications by remember { mutableStateOf(true) }
+
+    val result by navController.currentBackStackEntryFlow.collectAsState(initial = null)
+    val selectedFavoriteRootItemId = result?.savedStateHandle?.get<String>("selectedFavoriteRootItemId")
+
+    var patterns by remember { mutableStateOf<List<Pattern>>(listOf()) }
+    var selectedPatternIds by remember { mutableStateOf<List<String>>(listOf()) }
+
+    val favorite = if (favoriteId != null)
+        favoritesManager.favorites.firstOrNull {
+            if (favoriteType == FavoriteType.PATTERN) {
+                it.lineId == favoriteId
+            } else {
+                it.stopId == favoriteId
+            }
+        } else null
+
+    LaunchedEffect(selectedFavoriteRootItemId) {
+        if (selectedFavoriteRootItemId != null || favoriteId != null) {
+            if (favoriteType == FavoriteType.PATTERN) {
+                val line = linesManager.data.value.firstOrNull {
+                    it.id == (selectedFavoriteRootItemId ?: favoriteId)
+                }
+                for (patternId in line?.patterns ?: listOf()) {
+                    val pattern = CMAPI.shared.getPattern(patternId) ?: continue
+                    patterns += pattern
+                }
+            } else {
+                val stop =
+                    stopsManager.data.value.firstOrNull {
+                        it.id == (selectedFavoriteRootItemId ?: favoriteId)
+                    }
+                for (patternId in stop?.patterns ?: listOf()) {
+                    val pattern = CMAPI.shared.getPattern(patternId) ?: continue
+                    patterns += pattern
+                }
+            }
+        }
+
+        if (favorite != null) {
+            selectedPatternIds = favorite.patternIds
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -66,7 +136,38 @@ fun FavoriteItemCustomization(
                     }
                 },
                 actions = {
-                    Text(text = "Guardar", modifier = Modifier.clickable { navController.popBackStack() })
+                    Text(text = "Guardar", modifier = Modifier.clickable {
+                        if (selectedPatternIds.isNotEmpty()) {
+                            if (favoriteType == FavoriteType.PATTERN) {
+                                val line = linesManager.data.value.firstOrNull {
+                                    it.id == (selectedFavoriteRootItemId ?: favoriteId)
+                                }
+                                if (line != null) {
+                                    val newFavorite = FavoriteItem.create(
+                                        type = favoriteType,
+                                        patternIds = selectedPatternIds,
+                                        lineId = line.id,
+                                    )
+                                    favoritesManager.addFavorite(newFavorite)
+                                }
+                            } else {
+                                val stop = stopsManager.data.value.firstOrNull {
+                                    it.id == (selectedFavoriteRootItemId ?: favoriteId)
+                                }
+                                if (stop != null) {
+                                    val newFavorite = FavoriteItem.create(
+                                        type = favoriteType,
+                                        stopId = stop.id,
+                                        patternIds = selectedPatternIds,
+                                        displayName = stop.name
+                                    )
+                                    favoritesManager.addFavorite(newFavorite)
+                                }
+                            }
+                        }
+
+                        navController.popBackStack()
+                    })
                 }
             )
         }
@@ -86,26 +187,70 @@ fun FavoriteItemCustomization(
                 Text("Escolha uma ${if (favoriteType == FavoriteType.STOP) "paragem" else "linha"} para visualizar na página principal.")
 
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                Card(
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .clip(shape = RoundedCornerShape(size = 12.dp))
-                        .background(Color.LightGray)
-                        .padding(horizontal = 12.dp, vertical = 12.dp)
+                        .padding(vertical = 12.dp)
+                        .clickable {
+                            if (favoriteType == FavoriteType.PATTERN) {
+                                navController.navigate("select_favorite_line")
+                            } else {
+                                navController.navigate("select_favorite_stop")
+                            }
+                        },
+                    colors = CardDefaults.cardColors(
+                        containerColor = CMSystemBackground100
+                    )
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(shape = RoundedCornerShape(size = 12.dp))
+                            .padding(horizontal = 12.dp, vertical = 16.dp)
                     ) {
-                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                        Text("Pesquisar ${if (favoriteType == FavoriteType.STOP) "paragens" else "linhas"}")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            if (selectedFavoriteRootItemId != null || favoriteId != null) {
+                                if (favoriteType == FavoriteType.PATTERN) {
+                                    LineItem(
+                                        line = linesManager.data.collectAsState().value.find {
+                                            it.id == (selectedFavoriteRootItemId ?: favoriteId)
+                                        }!!,
+                                        isLastInList = true,
+                                        onClick = {})
+                                } else {
+                                    val stop = stopsManager.data.collectAsState().value.find {
+                                        it.id == (selectedFavoriteRootItemId ?: favoriteId)
+                                    }!!
+                                    Column {
+                                        Text(stop.name)
+                                        Text(
+                                            text = if (stop.locality == stop.municipalityName) stop.locality else (if (stop.locality == null) stop.municipalityName else "${stop.locality}, ${stop.municipalityName}"),
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                            } else {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search"
+                                    )
+                                    Text("Pesquisar ${if (favoriteType == FavoriteType.STOP) "paragens" else "linhas"}")
+                                }
+                            }
+                            Icon(imageVector = ImageVector.vectorResource(R.drawable.chevron_right), contentDescription = "Chevron Right Icon", Modifier.size(24.dp), tint = Color.Gray)
+                        }
                     }
                 }
-
-                MyTextField()
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -116,17 +261,70 @@ fun FavoriteItemCustomization(
                 )
                 Text(if (favoriteType == FavoriteType.STOP) "Escolha 1 destino para gravar na página de entrada." else "Escolha quais destinos pretende visualizar.")
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                Card(
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .clip(shape = RoundedCornerShape(size = 12.dp))
-                        .background(Color.LightGray)
-                        .padding(horizontal = 12.dp, vertical = 20.dp)
+                        .padding(vertical = 12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = CMSystemBackground100
+                    )
                 ) {
-                    Text("Selecione uma ${if (favoriteType == FavoriteType.STOP) "paragem" else "linha"}", color = Color.Gray)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(shape = RoundedCornerShape(size = 12.dp))
+                            .padding(horizontal = 12.dp, vertical = 20.dp)
+                    ) {
+                        if (patterns.isNotEmpty()) {
+                            Column {
+                                for (pattern in patterns) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 12.dp)
+                                            .clickable {
+                                                if (selectedPatternIds.contains(pattern.id)) {
+                                                    selectedPatternIds -= pattern.id
+                                                } else {
+                                                    selectedPatternIds += pattern.id
+                                                }
+                                            }
+                                    ) {
+                                        if (favoriteType == FavoriteType.STOP) {
+                                            Checkbox(
+                                                checked = selectedPatternIds.contains(pattern.id),
+                                                onCheckedChange = {
+                                                    if (it) {
+                                                        selectedPatternIds += pattern.id
+                                                    } else {
+                                                        selectedPatternIds -= pattern.id
+                                                    }
+                                                })
+                                            Pill(text = pattern.lineId, color = Color(pattern.color.toColorInt()), textColor = Color(pattern.textColor.toColorInt()), size = 60)
+                                            Text(pattern.headsign)
+                                        } else {
+                                            RadioButton(selected = selectedPatternIds.contains(pattern.id), onClick = {
+                                                selectedPatternIds = listOf(pattern.id)
+                                            })
+                                            Text(pattern.headsign)
+                                        }
+                                    }
+                                    if (pattern.id != patterns.last().id) {
+                                        HorizontalDivider(thickness = 2.dp, color = CMSystemBorder100)
+                                    }
+                                }
+                            }
+                        } else {
+                            Text(
+                                "Selecione uma ${if (favoriteType == FavoriteType.STOP) "paragem" else "linha"}",
+                                color = Color.Gray
+                            )
+                        }
+                    }
                 }
             }
 
@@ -138,18 +336,41 @@ fun FavoriteItemCustomization(
                 )
                 Text("Receber notificações sempre que houver novos avisos para as linhas e paragens selecionadas.")
 
-                Row (
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                Card(
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .clip(shape = RoundedCornerShape(size = 12.dp))
-                        .background(Color.LightGray)
-                        .padding(horizontal = 12.dp, vertical = 5.dp),
+                        .padding(vertical = 12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = CMSystemBackground100
+                    )
                 ) {
-                    Text("Receber notificações")
-                    Switch(checked = receiveNotifications, onCheckedChange = { receiveNotifications = it })
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(shape = RoundedCornerShape(size = 12.dp))
+                            .padding(horizontal = 12.dp, vertical = 5.dp),
+                    ) {
+                        Text("Receber notificações")
+                        Switch(
+                            checked = receiveNotifications,
+                            onCheckedChange = { receiveNotifications = it })
+                    }
+                }
+            }
+
+
+            if (favorite != null) {
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {
+                        favoritesManager.removeFavorite(favorite)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Eliminar", color = Color.White)
                 }
             }
         }
@@ -159,12 +380,12 @@ fun FavoriteItemCustomization(
 @Preview
 @Composable
 fun FavoriteItemCustomizationPreview() {
-//    FavoriteItemCustomization(
-//        navController = rememberNavController(),
-//        favoriteType = FavoriteType.LINE,
-//        favoriteId = "1523"
-//    )
-    MyTextField()
+    FavoriteItemCustomization(
+        navController = rememberNavController(),
+        favoriteType = FavoriteType.PATTERN,
+        favoriteId = "1523"
+    )
+//    MyTextField()
 }
 
 @Composable
@@ -175,6 +396,8 @@ fun MyTextField() {
         value = text,
         onValueChange = { newText -> text = newText },
         label = { Text("Enter text") },
-        modifier = Modifier.padding(16.dp).clickable { text = "Hello World!" }
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable { text = "Hello World!" }
     )
 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
@@ -57,6 +55,7 @@ import pt.carrismetropolitana.mobile.LocalVehiclesManager
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.components.Pill
+import pt.carrismetropolitana.mobile.composables.components.maps.MapVisualStyle
 import pt.carrismetropolitana.mobile.composables.components.maps.StopsMapView
 import pt.carrismetropolitana.mobile.composables.components.maps.overlays.MapFloatingButton
 import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsList
@@ -88,6 +87,8 @@ fun StopsScreen(navController: NavController) {
 
     var searchFilteredStops by rememberSaveable { mutableStateOf<List<Stop>>(listOf()) }
 
+    var mapVisualStyle by rememberSaveable { mutableStateOf(MapVisualStyle.MAP) }
+
     LaunchedEffect(text) {
         if (text.isNotEmpty()) {
             searchFilteredStops = stopsManager.data.value.filter {
@@ -108,6 +109,7 @@ fun StopsScreen(navController: NavController) {
         Box(modifier = Modifier.fillMaxSize()) {
             StopsMapView(
                 stops = stopsManager.data.collectAsState().value,
+                mapVisualStyle = mapVisualStyle,
                 onStopClick = { stopId ->
                     selectedStopId.value = stopId
                     showBottomSheet = true
@@ -149,7 +151,14 @@ fun StopsScreen(navController: NavController) {
                 modifier = Modifier
                     .align(Alignment.TopCenter)
             ) {
-                StopsList(stops = searchFilteredStops)
+                StopsList(stops = searchFilteredStops, onStopClick = { stopId ->
+                    navController.navigate(
+                        Screens.StopDetails.route.replace(
+                            "{stopId}",
+                            stopId
+                        )
+                    )
+                })
             }
 
 //            Column(
@@ -177,7 +186,11 @@ fun StopsScreen(navController: NavController) {
 
                     }
                     MapFloatingButton(iconResourceId = R.drawable.phosphoricons_map_trifold) {
-
+                        mapVisualStyle = if (mapVisualStyle == MapVisualStyle.MAP) {
+                            MapVisualStyle.SATELLITE
+                        } else {
+                            MapVisualStyle.MAP
+                        }
                     }
                 }
             }

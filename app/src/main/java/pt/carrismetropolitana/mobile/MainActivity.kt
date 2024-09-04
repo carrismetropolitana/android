@@ -15,21 +15,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import pt.carrismetropolitana.mobile.ui.theme.CarrisMetropolitanaTheme
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.core.graphics.toColorInt
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -37,20 +32,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
-import org.maplibre.android.MapLibre
-import org.maplibre.android.camera.CameraPosition
-import org.maplibre.android.geometry.LatLng
-import org.maplibre.android.maps.MapView
 //import pt.carrismetropolitana.mobile.composables.FavoriteCustomizationView
 import pt.carrismetropolitana.mobile.composables.FavoriteItemCustomization
-import pt.carrismetropolitana.mobile.composables.FavoriteType
 import pt.carrismetropolitana.mobile.composables.components.news.NewsView
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsFilterForInformedEntities
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsView
-import pt.carrismetropolitana.mobile.composables.components.transit.alerts.previewAlert
 import pt.carrismetropolitana.mobile.composables.screens.stops.AboutStopView
 import pt.carrismetropolitana.mobile.composables.screens.lines.LineDetailsView
 import pt.carrismetropolitana.mobile.composables.screens.SplashScreen
+import pt.carrismetropolitana.mobile.composables.components.favorites.FavoritesCustomization
+import pt.carrismetropolitana.mobile.composables.components.favorites.SelectFavoriteLineView
+import pt.carrismetropolitana.mobile.composables.components.favorites.SelectFavoriteStopView
 import pt.carrismetropolitana.mobile.composables.screens.home.HomeScreen
 import pt.carrismetropolitana.mobile.composables.screens.lines.LinesScreen
 import pt.carrismetropolitana.mobile.composables.screens.more.ENCMView
@@ -63,6 +55,7 @@ import pt.carrismetropolitana.mobile.managers.LinesManager
 import pt.carrismetropolitana.mobile.managers.StopsManager
 import pt.carrismetropolitana.mobile.managers.VehiclesManager
 import pt.carrismetropolitana.mobile.services.database.AppDatabase
+import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
 import pt.carrismetropolitana.mobile.ui.common.animatedComposable
 import pt.carrismetropolitana.mobile.ui.common.slideInVerticallyComposable
 
@@ -92,8 +85,10 @@ sealed class Screens(val route : String) {
     object StopDetails: Screens("stop_details/{stopId}")
 
     // Favorite destinations
-    object FavoriteCustomization: Screens("favorite_customization")
-    object FavoriteItemCustomization: Screens("favorite_item_customization/{favoriteType}/{favoriteId}")
+    object FavoritesCustomization: Screens("favorites_customization")
+    object FavoriteItemCustomization: Screens("favorite_item_customization/{favoriteType}?favoriteId={favoriteId}")
+    object SelectFavoriteLine: Screens("select_favorite_line")
+    object SelectFavoriteStop: Screens("select_favorite_stop")
 
     // Alerts destinations
     object AlertsForEntity: Screens("alerts_for_entity/{entityType}/{entityId}")
@@ -269,7 +264,7 @@ class MainActivity : ComponentActivity() {
                                         topBarVisible = true
                                         bottomNavbarVisible = true
                                     }
-                                    HomeScreen(navController)
+                                    HomeScreen(parentPaddingValues = padding, navController = navController)
                                 }
                                 composable(
                                     Screens.Lines.route,
@@ -334,18 +329,43 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 slideInVerticallyComposable(
+                                    Screens.FavoritesCustomization.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+                                    FavoritesCustomization(navController = navController, onCloseButtonClick = { navController.popBackStack() })
+                                }
+
+                                animatedComposable(
+                                    Screens.SelectFavoriteLine.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+                                    SelectFavoriteLineView(navController = navController)
+                                }
+
+                                animatedComposable(
+                                    Screens.SelectFavoriteStop.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+                                    SelectFavoriteStopView(navController = navController)
+                                }
+
+                                slideInVerticallyComposable(
                                     Screens.FavoriteItemCustomization.route
                                 ) {backStackEntry ->
                                     LaunchedEffect(Unit) {
                                         bottomNavbarVisible = false
                                     }
 
-                                    backStackEntry.arguments?.getString("favoriteId")
-                                        ?.let { favoriteId ->
-                                            backStackEntry.arguments?.getString("favoriteType")
-                                                ?.let { favoriteType ->
-                                                    FavoriteItemCustomization(navController = navController, favoriteType = FavoriteType.valueOf(favoriteType), favoriteId = favoriteId)
-                                                }
+
+                                    backStackEntry.arguments?.getString("favoriteType")
+                                        ?.let { favoriteType ->
+                                            FavoriteItemCustomization(navController = navController, favoriteType = FavoriteType.valueOf(favoriteType), favoriteId = backStackEntry.arguments?.getString("favoriteId"))
                                         }
                                 }
 

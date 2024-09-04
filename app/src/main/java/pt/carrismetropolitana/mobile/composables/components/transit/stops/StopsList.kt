@@ -10,14 +10,17 @@ import pt.carrismetropolitana.mobile.services.cmapi.Stop
 
 @Composable
 fun StopsList(
-    stops: List<Stop>
+    stops: List<Stop>,
+    onStopClick: (stopId: String) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp)
     ) {
         items(stops) {
-            StopsListItem(it)
+            StopsListItem(it, onStopClick = {
+                onStopClick(it)
+            })
         }
     }
 }

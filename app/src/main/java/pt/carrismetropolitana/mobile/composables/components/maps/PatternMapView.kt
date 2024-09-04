@@ -36,6 +36,7 @@ fun PatternMapView(
     lineColorHex: String,
     stops: List<Stop>,
     vehicles: List<Vehicle>,
+    disabledUserInteraction: Boolean = false,
     onMapReady: (MapLibreMap) -> Unit = {},
     onStopClick: (stopId: String) -> Unit = {}
 ) {
@@ -51,6 +52,12 @@ fun PatternMapView(
                         // Hide attributions
                         map.uiSettings.isAttributionEnabled = false
                         map.uiSettings.isLogoEnabled = false
+
+                        if (disabledUserInteraction) {
+                            map.uiSettings.isScrollGesturesEnabled = false
+                            map.uiSettings.isZoomGesturesEnabled = false
+                            map.uiSettings.isRotateGesturesEnabled = false
+                        }
 
                         ResourcesCompat.getDrawable(
                             context.resources,

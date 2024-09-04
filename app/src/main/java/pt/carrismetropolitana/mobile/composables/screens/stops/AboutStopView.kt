@@ -42,7 +42,6 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LocalStopsManager
 import pt.carrismetropolitana.mobile.R
-import pt.carrismetropolitana.mobile.composables.FavoriteType
 import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.composables.components.feedback.UserFeedbackForm
 import pt.carrismetropolitana.mobile.composables.components.feedback.demoUserFeedbackFormQuestions
@@ -50,6 +49,7 @@ import pt.carrismetropolitana.mobile.composables.screens.lines.LineItem
 import pt.carrismetropolitana.mobile.composables.screens.lines.SquareButton
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.Pattern
+import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,7 +152,7 @@ fun AboutStopView(
                                 iconContentDescription = "Favorite Stop Icon",
                                 size = 60
                             ) {
-                                navController.navigate("favorite_item_customization/${FavoriteType.STOP.name}/$stopId")
+                                navController.navigate("favorite_item_customization/${FavoriteType.STOP.name}?favoriteId=$stopId")
                             }
                             SquareButton(
                                 icon = ImageVector.vectorResource(R.drawable.phosphoricons_map_trifold),

@@ -1,14 +1,10 @@
-package pt.carrismetropolitana.mobile.composables.screens.lines
+package pt.carrismetropolitana.mobile.composables.components.favorites
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,34 +12,33 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LocalLinesManager
+import pt.carrismetropolitana.mobile.composables.screens.lines.LinesList
 import pt.carrismetropolitana.mobile.services.cmapi.Line
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues) {
+fun SelectFavoriteLineView(
+    navController: NavController
+) {
     val linesManager = LocalLinesManager.current
 
     var text by rememberSaveable {
@@ -54,9 +49,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
         mutableStateOf(false)
     }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-
-    var searchFilteredLines by remember { mutableStateOf(listOf<Line>()) }
+    var searchFilteredLines by rememberSaveable { mutableStateOf(listOf<Line>()) }
 
     LaunchedEffect(text) {
         if (text.isNotEmpty()) {
@@ -72,18 +65,16 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
     Scaffold(
         topBar = {
             Column {
-                AnimatedVisibility(visible = !active) {
-                    MediumTopAppBar(
-                        title = {
-                            Text("Linhas")
-                        },
-                        colors = TopAppBarDefaults.mediumTopAppBarColors(
-                            containerColor = Color("#FFDD01".toColorInt()),
-                            scrolledContainerColor = Color("#FFDD01".toColorInt())
-                        ),
-                        scrollBehavior = scrollBehavior
-                    )
-                }
+                TopAppBar(
+                    title = {
+                        Text("Selecionar linha")
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Dismiss")
+                        }
+                    }
+                )
                 SearchBar(
                     query = text,
                     onQueryChange = {
@@ -118,34 +109,29 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color("#FFDD01".toColorInt()))
                         .padding(horizontal = if (active) 0.dp else 12.dp)
-                        .padding(bottom = if (active) 0.dp else 12.dp)
-                        .padding(top = if (active) parentPaddingValues.calculateTopPadding() else 0.dp),
+                        .padding(bottom = if (active) 0.dp else 12.dp),
                     windowInsets = WindowInsets(0, 0, 0, 0)
                 ) {
-                    LinesList(lines = searchFilteredLines, onLineClick = { lineId -> navController.navigate("line_details/$lineId") })
+                    LinesList(lines = searchFilteredLines, onLineClick = { lineId ->
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "selectedFavoriteRootItemId",
+                            lineId
+                        )
+                        navController.popBackStack()
+                    })
                 }
             }
-        },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-    ) { paddingValues ->
-        val lines = linesManager.data.collectAsState().value // check if this keeps updating as state changes
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (lines.isEmpty()) {
-                Text(
-                    text = "Loading...",
-                    modifier = Modifier.padding(16.dp)
-                )
-            } else {
-                LinesList(lines = lines, onLineClick = { lineId -> navController.navigate("line_details/$lineId") })
-            }
         }
+    ) {
+        LinesList(
+            lines = linesManager.data.collectAsState().value,
+            onLineClick = {
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    "selectedFavoriteRootItemId",
+                    it
+                )
+                navController.popBackStack()
+            })
     }
 }

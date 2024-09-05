@@ -32,6 +32,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import pt.carrismetropolitana.mobile.composables.components.common.WebView
 import pt.carrismetropolitana.mobile.services.cmapi.ENCM
+import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,7 +113,7 @@ fun ENCMItem(
             Text("Seg-Sex\n08:00-19:00")
 //            Text(encmToHoursOpenString(encm))
 
-            Text("ABERTO", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Green, modifier = Modifier.padding(vertical = 8.dp))
+            Text("ABERTO", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = SmoothGreen, modifier = Modifier.padding(vertical = 8.dp))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically

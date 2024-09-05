@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,16 +35,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pt.carrismetropolitana.mobile.R
+import pt.carrismetropolitana.mobile.composables.screens.stops.adjustTimeFormat
+import pt.carrismetropolitana.mobile.composables.screens.stops.getRoundedMinuteDifferenceFromNow
 import pt.carrismetropolitana.mobile.services.cmapi.Facility
 import pt.carrismetropolitana.mobile.services.cmapi.PathEntry
 import pt.carrismetropolitana.mobile.services.cmapi.PatternRealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
+import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 import kotlin.math.exp
 
 enum class PositionInList { FIRST, MIDDLE, LAST }
@@ -61,12 +66,19 @@ fun PatternPathItem(
 //    nextArrivals: List<RealtimeETA>
     nextArrivals: List<PatternRealtimeETA>
 ) {
+
+    val nextArrivalsForStop = nextArrivals.filter { it.stopId == pathItem.stop.id }
+
     val heightInDp = animateDpAsState(
-        targetValue = if (expanded) 180.dp else 60.dp,
+        targetValue = if (expanded) 180.dp else if (nextArrivalsForStop.isNotEmpty() && nextArrivalsForStop[0].estimatedArrivalUnix != null) 90.dp else 60.dp,
         animationSpec = tween(
             durationMillis = 300,
         )
     )
+
+    LaunchedEffect(nextArrivals) {
+        println("Next arrivals for patternPathItem: ${nextArrivals.count()}")
+    }
 
     Box(
         modifier = Modifier
@@ -161,19 +173,70 @@ fun PatternPathItem(
                     }
                 }
 
+                Column {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (nextArrivalsForStop.isNotEmpty()) {
+                            nextArrivalsForStop[0].estimatedArrivalUnix?.let {
+                                Text(
+                                    "${getRoundedMinuteDifferenceFromNow(it)} minutos",
+                                    color = SmoothGreen
+                                )
+                            }
+                        }
+                        if (expanded) {
+                            if (nextArrivalsForStop.drop(1).isNotEmpty()) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.phosphoricons_clock),
+                                    contentDescription = "Clock icon",
+                                    Modifier.size(20.dp)
+                                )
+                                nextArrivalsForStop.drop(1).take(3).forEach {
+                                    if (it.estimatedArrivalUnix != null && it.estimatedArrival != null) {
+                                        Text(
+                                            adjustTimeFormat(
+                                                it.estimatedArrival.substring(
+                                                    0,
+                                                    5
+                                                )
+                                            )!!,
+                                            color = SmoothGreen
+                                        )
+                                    } else if (it.scheduledArrival != null) {
+                                        Text(
+                                            adjustTimeFormat(
+                                                it.scheduledArrival.substring(
+                                                    0,
+                                                    5
+                                                )
+                                            )!!
+                                        )
+                                    }
+                                }
+                            } else {
+                                Text(
+                                    "Sem próximas passagens",
+                                    color = Color.Gray,
+                                    fontSize = 16.sp,
+                                    fontStyle = FontStyle.Italic,
+                                    modifier = Modifier.padding(bottom = 5.dp)
+                                )
+                            }
+                        }
+                    }
+                }
 
                 if (expanded) {
-                    Column {
-                        Text("13:15\t\t13:45\t\t14:15")
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            PatternPathFooterButton(text = "Horários", iconResourceId = R.drawable.phosphoricons_clock) {
-                                onSchedulesButtonClick()
-                            }
-                            PatternPathFooterButton(text = "Sobre a paragem", iconResourceId = R.drawable.phosphoricons_map_pin_simple_area) {
-                                onStopDetailsButtonClick()
-                            }
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        PatternPathFooterButton(text = "Horários", iconResourceId = R.drawable.phosphoricons_clock) {
+                            onSchedulesButtonClick()
+                        }
+                        PatternPathFooterButton(text = "Sobre a paragem", iconResourceId = R.drawable.phosphoricons_map_pin_simple_area) {
+                            onStopDetailsButtonClick()
                         }
                     }
                 }

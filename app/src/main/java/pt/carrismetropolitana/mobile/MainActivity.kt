@@ -43,6 +43,7 @@ import pt.carrismetropolitana.mobile.composables.screens.SplashScreen
 import pt.carrismetropolitana.mobile.composables.components.favorites.FavoritesCustomization
 import pt.carrismetropolitana.mobile.composables.components.favorites.SelectFavoriteLineView
 import pt.carrismetropolitana.mobile.composables.components.favorites.SelectFavoriteStopView
+import pt.carrismetropolitana.mobile.composables.components.transit.vehicles.VehicleRealtimeTrackingView
 import pt.carrismetropolitana.mobile.composables.screens.home.HomeScreen
 import pt.carrismetropolitana.mobile.composables.screens.lines.LinesScreen
 import pt.carrismetropolitana.mobile.composables.screens.more.ENCMView
@@ -92,6 +93,8 @@ sealed class Screens(val route : String) {
 
     // Alerts destinations
     object AlertsForEntity: Screens("alerts_for_entity/{entityType}/{entityId}")
+
+    object VehicleRealtimeTracking: Screens("vehicle_realtime_tracking/{vehicleId}")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -401,6 +404,19 @@ class MainActivity : ComponentActivity() {
                                             NewsView(newsUrl = url, navController = navController)
                                         }
                                 }
+
+                                animatedComposable(
+                                    Screens.VehicleRealtimeTracking.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+                                    it.arguments?.getString("vehicleId")
+                                        ?.let { vehicleId ->
+                                            VehicleRealtimeTrackingView(vehicleId = vehicleId, navController = navController)
+                                        }
+                                }
+
                             }
                         }
                     }

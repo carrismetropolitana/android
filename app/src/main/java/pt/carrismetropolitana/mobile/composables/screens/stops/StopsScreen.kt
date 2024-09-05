@@ -62,6 +62,7 @@ import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsL
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
+import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -224,12 +225,12 @@ fun StopsScreen(navController: NavController) {
                         if (arrival.estimatedArrivalUnix != null && arrival.vehicleId != null) {
                             val vehicle = vehiclesManager.data.value.firstOrNull { it.id == arrival.vehicleId }
                             if (vehicle != null) {
-//                                navController.navigate(
-//                                    Screens.VehicleRealtimeDetails.route.replace(
-//                                        "{vehicleId}",
-//                                        arrival.vehicleId
-//                                    )
-//                                )
+                                navController.navigate(
+                                    Screens.VehicleRealtimeTracking.route.replace(
+                                        "{vehicleId}",
+                                        arrival.vehicleId
+                                    )
+                                )
                                 return@StopDetailsSheetView
                             }
 
@@ -453,7 +454,7 @@ fun ArrivalItem(arrival: RealtimeETA, color: Color, textColor: Color, onClick: (
 
 
         if (arrival.estimatedArrivalUnix != null) {
-            Text("${getRoundedMinuteDifferenceFromNow(arrival.estimatedArrivalUnix)} min", color = Color.Green, fontWeight = FontWeight.Bold)
+            Text("${getRoundedMinuteDifferenceFromNow(arrival.estimatedArrivalUnix)} min", color = SmoothGreen, fontWeight = FontWeight.Bold)
         } else {
             arrival.scheduledArrival?.let {
                 adjustTimeFormat(

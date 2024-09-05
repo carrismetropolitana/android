@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.LocalStopsManager
@@ -56,6 +57,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.Stop
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteItem
 import pt.carrismetropolitana.mobile.ui.animations.shimmerEffect
 import pt.carrismetropolitana.mobile.ui.theme.CMSystemBorder100
+import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 
 
 @Composable
@@ -75,8 +77,12 @@ fun FavoriteStopWidget(
             pattern?.let { patterns += it }
         }
 
-        val arrivals = CMAPI.shared.getStopETAs(favoriteItem.stopId!!)
-        nextArrivalsForStop = filterAndSortStopArrivalsByCurrentAndFuture(arrivals)
+
+        while (true) {
+            val arrivals = CMAPI.shared.getStopETAs(favoriteItem.stopId!!)
+            nextArrivalsForStop = filterAndSortStopArrivalsByCurrentAndFuture(arrivals)
+            delay(5000)
+        }
     }
 
     val stop = stopsManager.data.collectAsState().value.firstOrNull { it.id == favoriteItem.stopId }
@@ -186,7 +192,7 @@ fun FavoriteStopPatternItem(
             if (nextArrival.estimatedArrivalUnix != null) {
                 Text(
                     "${getRoundedMinuteDifferenceFromNow(nextArrival.estimatedArrivalUnix)} min",
-                    color = Color.Green,
+                    color = SmoothGreen,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.width(60.dp)
                 )

@@ -18,10 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
 import pt.carrismetropolitana.mobile.composables.components.feedback.QuestionItem
+import pt.carrismetropolitana.mobile.composables.screens.stops.filterAndSortStopArrivalsByCurrentAndFuture
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.PathEntry
 import pt.carrismetropolitana.mobile.services.cmapi.PatternRealtimeETA
+import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import java.util.Dictionary
 
 
@@ -36,13 +39,17 @@ fun PatternPath(
     header: @Composable () -> Unit,
 ) {
     var expandedPathItemIndex by remember { mutableIntStateOf(0) }
-    val nextArrivalsByStop = remember { mutableStateOf(mapOf<String, List<PatternRealtimeETA>>()) }
+    var nextArrivals by remember { mutableStateOf(listOf<PatternRealtimeETA>()) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(patternId) {
         if (patternId == null) return@LaunchedEffect
-        val nextArrivals = CMAPI.shared.getPatternETAs(patternId)
-        nextArrivalsByStop.value = arrangeArrivalsByStop(nextArrivals)
+        while (true) {
+            val arrivals = CMAPI.shared.getPatternETAs(patternId)
+            nextArrivals = filterAndSortPatternArrivalsByCurrentAndFuture(arrivals)
+            delay(5000)
+        }
     }
+
 
     LazyColumn(
         modifier = modifier,
@@ -65,7 +72,7 @@ fun PatternPath(
                 onClick = { expandedPathItemIndex = index },
                 onSchedulesButtonClick = { onSchedulesButtonClick(pathItem.stop.id) },
                 onStopDetailsButtonClick = { onStopDetailsButtonClick(pathItem.stop.id) },
-                nextArrivals = nextArrivalsByStop.value[pathItem.stop.id] ?: listOf(),
+                nextArrivals = nextArrivals,
             )
         }
     }
@@ -73,4 +80,66 @@ fun PatternPath(
 
 fun arrangeArrivalsByStop(arrivals: List<PatternRealtimeETA>): Map<String, List<PatternRealtimeETA>> {
     return arrivals.groupBy { it.stopId }
+}
+
+fun filterAndSortPatternArrivalsByCurrentAndFuture(etas: List<PatternRealtimeETA>): List<PatternRealtimeETA> {
+    val fixedEtas = mutableListOf<PatternRealtimeETA>()
+
+    val currentAndFutureFiltering = etas.filter { eta ->
+        val tripHasObservedArrival = eta.observedArrivalUnix != null
+        val tripScheduledArrivalIsInThePast =
+            (eta.scheduledArrivalUnix ?: 0) <= System.currentTimeMillis() / 1000
+        val tripHasEstimatedArrival = eta.estimatedArrivalUnix != null
+        val tripEstimatedArrivalIsInThePast =
+            (eta.estimatedArrivalUnix ?: 0) <= System.currentTimeMillis() / 1000
+
+        // Fix for past midnight estimatedArrivals represented as being in the day before
+        if (tripHasEstimatedArrival && tripEstimatedArrivalIsInThePast && !tripScheduledArrivalIsInThePast) {
+            val fixedEta = eta.copy(estimatedArrivalUnix = eta.estimatedArrivalUnix?.plus(86400)) // estimatedArrival not fixed currently, but atm not being used for anything
+            fixedEtas += fixedEta
+
+            return@filter false
+        }
+
+        if (tripScheduledArrivalIsInThePast) {
+            return@filter false
+        }
+
+        if (tripHasEstimatedArrival && tripEstimatedArrivalIsInThePast ) {
+            return@filter false
+        }
+
+        if (tripHasObservedArrival) {
+            return@filter false
+        }
+
+        true
+    }
+
+    println("Filtered ${currentAndFutureFiltering.size} ETAs as currentAndFuture.")
+    println("Filtered and fixed ${fixedEtas.size} ETAs.")
+
+    val etasToSort = currentAndFutureFiltering + fixedEtas
+
+    val sorted = etasToSort.sortedWith { a, b ->
+        val estimatedArrivalA = a.estimatedArrivalUnix
+        val estimatedArrivalB = b.estimatedArrivalUnix
+
+        when {
+            estimatedArrivalA != null && estimatedArrivalB != null -> {
+                estimatedArrivalA.compareTo(estimatedArrivalB)
+            }
+            estimatedArrivalA != null -> {
+                -1
+            }
+            estimatedArrivalB != null -> {
+                1
+            }
+            else -> {
+                a.scheduledArrivalUnix!!.compareTo(b.scheduledArrivalUnix!!)
+            }
+        }
+    }
+
+    return sorted
 }

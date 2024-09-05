@@ -36,6 +36,7 @@ fun PatternPath(
     onSchedulesButtonClick: (stopId: String) -> Unit,
     onStopDetailsButtonClick: (stopId: String) -> Unit,
     modifier: Modifier = Modifier,
+    hideBottomButtons: Boolean = false,
     header: @Composable () -> Unit,
 ) {
     var expandedPathItemIndex by remember { mutableIntStateOf(0) }
@@ -72,6 +73,7 @@ fun PatternPath(
                 onClick = { expandedPathItemIndex = index },
                 onSchedulesButtonClick = { onSchedulesButtonClick(pathItem.stop.id) },
                 onStopDetailsButtonClick = { onStopDetailsButtonClick(pathItem.stop.id) },
+                hideBottomButtons = hideBottomButtons,
                 nextArrivals = nextArrivals,
             )
         }

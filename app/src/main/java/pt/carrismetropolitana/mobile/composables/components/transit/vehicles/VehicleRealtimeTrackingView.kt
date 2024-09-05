@@ -97,7 +97,8 @@ fun VehicleRealtimeTrackingView(
                 pathColor = Color(line.color.toColorInt()),
                 onSchedulesButtonClick = {},
                 onStopDetailsButtonClick = {},
-                modifier = Modifier.padding(paddingValues)
+                modifier = Modifier.padding(paddingValues),
+                hideBottomButtons = true
             ) {
                 Column (
                     modifier = Modifier

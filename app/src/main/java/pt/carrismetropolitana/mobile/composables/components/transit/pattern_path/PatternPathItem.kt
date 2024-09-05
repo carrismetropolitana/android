@@ -63,6 +63,7 @@ fun PatternPathItem(
     onClick: () -> Unit,
     onSchedulesButtonClick: () -> Unit,
     onStopDetailsButtonClick: () -> Unit,
+    hideBottomButtons: Boolean = false,
 //    nextArrivals: List<RealtimeETA>
     nextArrivals: List<PatternRealtimeETA>
 ) {
@@ -228,7 +229,7 @@ fun PatternPathItem(
                     }
                 }
 
-                if (expanded) {
+                if (expanded && !hideBottomButtons) {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {

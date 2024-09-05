@@ -268,7 +268,7 @@ fun filterAndSortStopArrivalsByCurrentAndFuture(etas: List<RealtimeETA>): List<R
         val scheduledArrivalAfterMidnight = tripHasScheduledArrival && eta.scheduledArrival!!.substring(0, 2).toInt() > 23
 
         // Fix for past midnight estimatedArrivals represented as being in the day before
-        if (!estimatedArrivalAfterMidnight && scheduledArrivalAfterMidnight) {
+        if (tripHasEstimatedArrival && !estimatedArrivalAfterMidnight && scheduledArrivalAfterMidnight) {
             val fixedEta = eta.copy(estimatedArrivalUnix = eta.estimatedArrivalUnix?.plus(86400)) // estimatedArrival not fixed currently, but atm not being used for anything
             fixedEtas += fixedEta
 

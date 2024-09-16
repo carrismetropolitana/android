@@ -70,6 +70,11 @@ fun SelectFavoriteStopView(
                     query = text,
                     onQueryChange = {
                         text = it
+                        searchFilteredStops = stopsManager.data.value.filter {stop ->
+                            stop.name.contains(text, true)
+                                    || stop.id.contains(text, true)
+                                    || stop.ttsName?.contains(text, true)  ?: false
+                        }
                     },
                     onSearch = {
                         active = false
@@ -96,7 +101,7 @@ fun SelectFavoriteStopView(
                             )
                     },
                     placeholder = {
-                        Text(text = "Pesquisar linhas")
+                        Text(text = "Pesquisar paragens")
                     },
                     modifier = Modifier
                         .fillMaxWidth()

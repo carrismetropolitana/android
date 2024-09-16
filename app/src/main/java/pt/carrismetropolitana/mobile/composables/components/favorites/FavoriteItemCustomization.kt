@@ -1,44 +1,41 @@
-package pt.carrismetropolitana.mobile.composables
+package pt.carrismetropolitana.mobile.composables.components.favorites
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,7 +55,6 @@ import androidx.navigation.compose.rememberNavController
 import pt.carrismetropolitana.mobile.LocalFavoritesManager
 import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.LocalStopsManager
-import pt.carrismetropolitana.mobile.ui.theme.CMSystemBackground100
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.composables.screens.lines.LineItem
@@ -97,15 +93,20 @@ fun FavoriteItemCustomization(
             }
         } else null
 
+    if (favorite != null) {
+        receiveNotifications = favorite.receiveNotifications
+    }
+
     LaunchedEffect(selectedFavoriteRootItemId) {
         if (selectedFavoriteRootItemId != null || favoriteId != null) {
+            val intermediatePatterns = mutableListOf<Pattern>()
             if (favoriteType == FavoriteType.PATTERN) {
                 val line = linesManager.data.value.firstOrNull {
                     it.id == (selectedFavoriteRootItemId ?: favoriteId)
                 }
                 for (patternId in line?.patterns ?: listOf()) {
                     val pattern = CMAPI.shared.getPattern(patternId) ?: continue
-                    patterns += pattern
+                    intermediatePatterns += pattern
                 }
             } else {
                 val stop =
@@ -114,9 +115,10 @@ fun FavoriteItemCustomization(
                     }
                 for (patternId in stop?.patterns ?: listOf()) {
                     val pattern = CMAPI.shared.getPattern(patternId) ?: continue
-                    patterns += pattern
+                    intermediatePatterns += pattern
                 }
             }
+            patterns = intermediatePatterns
         }
 
         if (favorite != null) {
@@ -147,6 +149,7 @@ fun FavoriteItemCustomization(
                                         type = favoriteType,
                                         patternIds = selectedPatternIds,
                                         lineId = line.id,
+                                        receiveNotifications = receiveNotifications
                                     )
                                     favoritesManager.addFavorite(newFavorite)
                                 }
@@ -159,7 +162,8 @@ fun FavoriteItemCustomization(
                                         type = favoriteType,
                                         stopId = stop.id,
                                         patternIds = selectedPatternIds,
-                                        displayName = stop.name
+                                        displayName = stop.name,
+                                        receiveNotifications = receiveNotifications
                                     )
                                     favoritesManager.addFavorite(newFavorite)
                                 }
@@ -175,7 +179,9 @@ fun FavoriteItemCustomization(
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = 12.dp)
+                .padding(top = 24.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -197,10 +203,7 @@ fun FavoriteItemCustomization(
                             } else {
                                 navController.navigate("select_favorite_stop")
                             }
-                        },
-                    colors = CardDefaults.cardColors(
-                        containerColor = CMSystemBackground100
-                    )
+                        }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -264,10 +267,7 @@ fun FavoriteItemCustomization(
                 Card(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
                     modifier = Modifier
-                        .padding(vertical = 12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = CMSystemBackground100
-                    )
+                        .padding(vertical = 12.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -319,10 +319,24 @@ fun FavoriteItemCustomization(
                                 }
                             }
                         } else {
-                            Text(
-                                "Selecione uma ${if (favoriteType == FavoriteType.STOP) "paragem" else "linha"}",
-                                color = Color.Gray
-                            )
+                            if (selectedFavoriteRootItemId != null || favoriteId != null) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.width(36.dp),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    )
+                                }
+                            } else {
+                                Text(
+                                    "Selecione uma ${if (favoriteType == FavoriteType.STOP) "paragem" else "linha"}"
+                                )
+                            }
                         }
                     }
                 }
@@ -339,10 +353,7 @@ fun FavoriteItemCustomization(
                 Card(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
                     modifier = Modifier
-                        .padding(vertical = 12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = CMSystemBackground100
-                    )
+                        .padding(vertical = 12.dp)
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -366,6 +377,7 @@ fun FavoriteItemCustomization(
                 Button(
                     onClick = {
                         favoritesManager.removeFavorite(favorite)
+                        navController.popBackStack()
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)

@@ -1,15 +1,21 @@
 package pt.carrismetropolitana.mobile.composables.components.maps
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.location.LocationComponentActivationOptions
+import org.maplibre.android.location.LocationComponentOptions
+import org.maplibre.android.location.engine.LocationEngineRequest
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
@@ -31,6 +37,7 @@ import org.maplibre.android.style.sources.TileSet
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
+import pt.carrismetropolitana.mobile.helpers.checkLocationPermission
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
 
 enum class MapVisualStyle {
@@ -54,6 +61,9 @@ fun StopsMapView(
             mapView.apply {
                 getMapAsync { map ->
                     map.setStyle("https://maps.carrismetropolitana.pt/styles/default/style.json") { style ->
+
+//                        enableLocationComponent(map, style, context)
+
                         // Hide attributions
                         map.uiSettings.isAttributionEnabled = false
                         map.uiSettings.isLogoEnabled = false
@@ -181,5 +191,37 @@ fun setVisualStyle(mapVisualStyle: MapVisualStyle, style: Style) {
         val satelliteLayer = RasterLayer("satellite-layer", "satellite-source")
 
         style.addLayerBelow(satelliteLayer, "stops-layer")
+    }
+}
+
+fun enableLocationComponent(map: MapLibreMap, loadedMapStyle: Style, context: Context) {
+    if (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        // Create and customize the LocationComponent's options
+        val locationComponentOptions = LocationComponentOptions.builder(context)
+            .pulseEnabled(true)
+            .build()
+
+        val locationComponent = map.locationComponent
+
+        // Activate with a built LocationComponentActivationOptions object
+        locationComponent.activateLocationComponent(
+            LocationComponentActivationOptions.builder(context, loadedMapStyle)
+                .locationComponentOptions(locationComponentOptions)
+                .useDefaultLocationEngine(true)
+                .locationEngineRequest(
+                    LocationEngineRequest.Builder(750)
+                        .setFastestInterval(750)
+                        .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                        .build()
+                )
+                .build()
+        )
+
+        // Enable to make component visible
+        locationComponent.isLocationComponentEnabled = true
     }
 }

@@ -67,7 +67,11 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StopsScreen(navController: NavController) {
+fun StopsScreen(
+    onStopDetailsClick: (stopId: String) -> Unit,
+    onVehicleRealtimeTrackingClick: (vehicleId: String) -> Unit,
+    onLineDetailsClick: (lineId: String) -> Unit
+) {
     val stopsManager = LocalStopsManager.current
     val vehiclesManager = LocalVehiclesManager.current
 
@@ -153,12 +157,7 @@ fun StopsScreen(navController: NavController) {
                     .align(Alignment.TopCenter)
             ) {
                 StopsList(stops = searchFilteredStops, onStopClick = { stopId ->
-                    navController.navigate(
-                        Screens.StopDetails.route.replace(
-                            "{stopId}",
-                            stopId
-                        )
-                    )
+                    onStopDetailsClick(stopId)
                 })
             }
 
@@ -213,24 +212,14 @@ fun StopsScreen(navController: NavController) {
                             sheetState.hide()
                         }
                         showBottomSheet = false
-                        navController.navigate(
-                            Screens.StopDetails.route.replace(
-                                "{stopId}",
-                                it.id
-                            )
-                        )
+                        onStopDetailsClick(it.id)
                     },
                     onArrivalClick = { arrival ->
                         showBottomSheet = false
                         if (arrival.estimatedArrivalUnix != null && arrival.vehicleId != null) {
                             val vehicle = vehiclesManager.data.value.firstOrNull { it.id == arrival.vehicleId }
                             if (vehicle != null) {
-                                navController.navigate(
-                                    Screens.VehicleRealtimeTracking.route.replace(
-                                        "{vehicleId}",
-                                        arrival.vehicleId
-                                    )
-                                )
+                                onVehicleRealtimeTrackingClick(arrival.vehicleId)
                                 return@StopDetailsSheetView
                             }
 
@@ -238,12 +227,7 @@ fun StopsScreen(navController: NavController) {
                         }
 
                         // when not realtime or if realtime but no vehicle found, open line details
-                        navController.navigate(
-                            Screens.LineDetails.route.replace(
-                                "{lineId}",
-                                arrival.lineId
-                            )
-                        )
+                        onLineDetailsClick(arrival.lineId)
                     }
                 )
             }

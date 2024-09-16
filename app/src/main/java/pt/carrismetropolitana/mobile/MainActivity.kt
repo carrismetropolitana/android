@@ -1,5 +1,8 @@
 package pt.carrismetropolitana.mobile
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +21,7 @@ import pt.carrismetropolitana.mobile.ui.theme.CarrisMetropolitanaTheme
 import androidx.compose.ui.res.vectorResource
 import androidx.core.graphics.toColorInt
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -25,15 +29,21 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.messaging
+import kotlinx.coroutines.flow.first
 //import pt.carrismetropolitana.mobile.composables.FavoriteCustomizationView
-import pt.carrismetropolitana.mobile.composables.FavoriteItemCustomization
+import pt.carrismetropolitana.mobile.composables.components.favorites.FavoriteItemCustomization
 import pt.carrismetropolitana.mobile.composables.components.news.NewsView
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsFilterForInformedEntities
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsView
@@ -43,19 +53,28 @@ import pt.carrismetropolitana.mobile.composables.screens.SplashScreen
 import pt.carrismetropolitana.mobile.composables.components.favorites.FavoritesCustomization
 import pt.carrismetropolitana.mobile.composables.components.favorites.SelectFavoriteLineView
 import pt.carrismetropolitana.mobile.composables.components.favorites.SelectFavoriteStopView
+import pt.carrismetropolitana.mobile.composables.components.startup.messages.StartupMessageView
+import pt.carrismetropolitana.mobile.composables.components.startup.messages.currentBuildInBuildInterval
 import pt.carrismetropolitana.mobile.composables.components.transit.vehicles.VehicleRealtimeTrackingView
 import pt.carrismetropolitana.mobile.composables.screens.home.HomeScreen
+import pt.carrismetropolitana.mobile.composables.screens.home.getCurrentLocale
+import pt.carrismetropolitana.mobile.composables.screens.home.getLastShowedChangelogMessageId
+import pt.carrismetropolitana.mobile.composables.screens.home.setLastShowedChangelogMessageId
 import pt.carrismetropolitana.mobile.composables.screens.lines.LinesScreen
 import pt.carrismetropolitana.mobile.composables.screens.more.ENCMView
 import pt.carrismetropolitana.mobile.composables.screens.more.FAQView
 import pt.carrismetropolitana.mobile.composables.screens.more.MoreScreen
 import pt.carrismetropolitana.mobile.composables.screens.stops.StopsScreen
+import pt.carrismetropolitana.mobile.helpers.requestLocationPermission
 import pt.carrismetropolitana.mobile.managers.AlertsManager
 import pt.carrismetropolitana.mobile.managers.FavoritesManager
 import pt.carrismetropolitana.mobile.managers.LinesManager
 import pt.carrismetropolitana.mobile.managers.StopsManager
 import pt.carrismetropolitana.mobile.managers.VehiclesManager
+import pt.carrismetropolitana.mobile.services.cmwebapi.CMWebAPI
+import pt.carrismetropolitana.mobile.services.cmwebapi.PresentationType
 import pt.carrismetropolitana.mobile.services.database.AppDatabase
+import pt.carrismetropolitana.mobile.services.database.Migrations
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
 import pt.carrismetropolitana.mobile.ui.common.animatedComposable
 import pt.carrismetropolitana.mobile.ui.common.slideInVerticallyComposable
@@ -95,6 +114,8 @@ sealed class Screens(val route : String) {
     object AlertsForEntity: Screens("alerts_for_entity/{entityType}/{entityId}")
 
     object VehicleRealtimeTracking: Screens("vehicle_realtime_tracking/{vehicleId}")
+
+    object StartupMessage: Screens("startup_message?url={url}&presentationType={presentationType}")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,13 +129,46 @@ class MainActivity : ComponentActivity() {
         this,
         AppDatabase::class.java,
         "favorites_database"
-    ).build().favoriteDao()) }
+    ).addMigrations(Migrations.MIGRATION_1_2).build().favoriteDao()) }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK (and your app) can post notifications.
+        } else {
+            // TODO: Inform user that that your app will not show notifications.
+        }
+    }
+
+    private fun askNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                // FCM SDK (and your app) can post notifications.
+            } else if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
+                // TODO: display an educational UI explaining to the user the features that will be enabled
+                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+                //       If the user selects "No thanks," allow the user to continue without notifications.
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         installSplashScreen()
 //        window.setBackgroundDrawable(BitmapDrawable())
         super.onCreate(savedInstanceState)
+        requestLocationPermission(this)
+        askNotificationPermission()
+        FirebaseApp.initializeApp(this)
+        Firebase.messaging.subscribeToTopic("cm.everyone")
         setContent {
             CarrisMetropolitanaTheme {
                 val items = listOf<BottomNavigationItem>(
@@ -155,6 +209,10 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(false)
                 }
 
+                var shownStartupMessage by rememberSaveable {
+                    mutableStateOf(false)
+                }
+
                 CompositionLocalProvider(
                     LocalLinesManager provides linesManager,
                     LocalStopsManager provides stopsManager,
@@ -168,6 +226,7 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.background
                     ) {
                         val navController = rememberNavController()
+
                         Scaffold(
                             bottomBar = {
                                 AnimatedVisibility(
@@ -267,7 +326,7 @@ class MainActivity : ComponentActivity() {
                                         topBarVisible = true
                                         bottomNavbarVisible = true
                                     }
-                                    HomeScreen(parentPaddingValues = padding, navController = navController)
+                                    HomeScreen(parentPaddingValues = padding, navController = navController, shownStartupMessage = shownStartupMessage, onShowStartupMessage = { shownStartupMessage = true })
                                 }
                                 composable(
                                     Screens.Lines.route,
@@ -285,7 +344,32 @@ class MainActivity : ComponentActivity() {
                                         topBarVisible = false
                                         bottomNavbarVisible = true
                                     }
-                                    StopsScreen(navController)
+                                    StopsScreen(
+                                        onStopDetailsClick = { stopId ->
+                                            navController.navigate(
+                                                Screens.StopDetails.route.replace(
+                                                    "{stopId}",
+                                                    stopId
+                                                )
+                                            )
+                                        },
+                                        onVehicleRealtimeTrackingClick = { vehicleId ->
+                                            navController.navigate(
+                                                Screens.VehicleRealtimeTracking.route.replace(
+                                                    "{vehicleId}",
+                                                    vehicleId
+                                                )
+                                            )
+                                        },
+                                        onLineDetailsClick = { lineId ->
+                                            navController.navigate(
+                                                Screens.LineDetails.route.replace(
+                                                    "{lineId}",
+                                                    lineId
+                                                )
+                                            )
+                                        },
+                                    )
                                 }
                                 composable(
                                     Screens.More.route,
@@ -417,6 +501,21 @@ class MainActivity : ComponentActivity() {
                                         }
                                 }
 
+                                slideInVerticallyComposable(
+                                    Screens.StartupMessage.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+                                    it.arguments?.getString("url")
+                                        ?.let { url ->
+                                            StartupMessageView(
+                                                url = url,
+                                                messagePresentationType = it.arguments?.getString("presentationType")?.let { PresentationType.valueOf(it) } ?: PresentationType.Changelog,
+                                                navController = navController
+                                            )
+                                        }
+                                }
                             }
                         }
                     }

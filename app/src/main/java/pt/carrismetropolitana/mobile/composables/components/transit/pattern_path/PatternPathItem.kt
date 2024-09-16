@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +49,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.PathEntry
 import pt.carrismetropolitana.mobile.services.cmapi.PatternRealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
+import pt.carrismetropolitana.mobile.ui.theme.CarrisMetropolitanaTheme
 import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 import kotlin.math.exp
 
@@ -85,7 +87,7 @@ fun PatternPathItem(
         modifier = Modifier
             .height(heightInDp.value)
             .shadow(elevation = if (expanded) 30.dp else 0.dp)
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 12.dp)
             .clickable { onClick() }
     ) {

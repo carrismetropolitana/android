@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,8 +40,7 @@ fun StopsListItem(
         modifier = Modifier
             .height(90.dp)
             .clip(RoundedCornerShape(15.dp))
-            .background(CMSystemBackground100)
-            .border(1.dp, CMSystemBorder100, shape = RoundedCornerShape(15.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(15.dp))
             .clickable { onStopClick(stop.id) }
     ) {
         Row(

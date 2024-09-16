@@ -14,31 +14,26 @@ import androidx.compose.ui.platform.LocalContext
 
 // TODO: work this theme stuff out
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
+// Define the light color scheme
+private val LightColorScheme = lightColorScheme(
+    primary = CMSystemText100,  // You can decide on the primary color
+    onPrimary = CMSystemText100,  // Text on buttons or highlighted surfaces
+    background = CMSystemBackground200,  // Main app background color
+    surface = CMSystemBackground100,  // Background for cards, dialogs, etc.
+    onBackground = CMSystemText100,  // Text color on background
+    onSurface = CMSystemText100,  // Text color on cards, dialogs, etc.
+    outline = CMSystemBorder100  // Borders and dividers
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-
-    background = Color.White,
-    surface = Color.White,
-
-    surfaceTint = Color.White,
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+// Define the dark color scheme
+private val DarkColorScheme = darkColorScheme(
+    primary = CMSystemText100Dark,  // Text or highlighted elements
+    onPrimary = CMSystemText100Dark,  // Background on primary text
+    background = CMSystemBackground200Dark,  // Main app background color
+    surface = CMSystemBackground200Dark,  // Background for cards, dialogs, etc.
+    onBackground = CMSystemText100Dark,  // Text color on background
+    onSurface = CMSystemText100Dark,  // Text color on surfaces
+    outline = CMSystemBorder100Dark  // Borders and dividers
 )
 
 @Composable

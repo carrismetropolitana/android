@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -385,10 +386,7 @@ fun SquareButton (
     Button(
         onClick = action,
         shape = RoundedCornerShape(10.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-            contentColor = Color.White
-        ),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = ButtonDefaults.elevatedButtonElevation(
             defaultElevation = 3.dp,
             pressedElevation = 1.dp
@@ -422,7 +420,7 @@ fun getScheduleItemsForStop(trips: List<Trip>, stopId: String, validOn: LocalDat
                     val minute = schedule.arrivalTime.substring(3, 5)
                     if (scheduleItems.any { it.hour == hour }) {
                         val scheduleItem = scheduleItems.first { it.hour == hour }
-                        scheduleItem.minutes + minute
+                        scheduleItem.minutes += minute
                     } else {
                         scheduleItems.add(ScheduleItem(hour, listOf(minute)))
                     }
@@ -430,5 +428,8 @@ fun getScheduleItemsForStop(trips: List<Trip>, stopId: String, validOn: LocalDat
             }
         }
     }
+
+    scheduleItems.sortBy { it.hour }
+
     return scheduleItems
 }

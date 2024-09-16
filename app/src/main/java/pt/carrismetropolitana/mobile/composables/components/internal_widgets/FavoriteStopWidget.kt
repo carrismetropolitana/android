@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -96,7 +97,7 @@ fun FavoriteStopWidget(
                 spotColor = Color.Black.copy(alpha = 0.4f)
             )
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .fillMaxWidth()
     ) {
         Row(
@@ -130,7 +131,7 @@ fun FavoriteStopWidget(
             )
         }
 
-        HorizontalDivider(thickness = 2.dp, color = CMSystemBorder100)
+        HorizontalDivider(thickness = 2.dp)
 
         for (patternId in favoriteItem.patternIds) {
             val pattern = patterns.firstOrNull { it.id == patternId }
@@ -140,7 +141,7 @@ fun FavoriteStopWidget(
                 }
             })
             if (patternId != favoriteItem.patternIds.last()) {
-                HorizontalDivider(color = CMSystemBorder100)
+                HorizontalDivider()
             }
         }
     }

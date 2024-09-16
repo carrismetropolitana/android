@@ -191,13 +191,13 @@ fun AboutStopView(
 
 
 
-            item {
-                UserFeedbackForm(
-                    title = "Estas informações estão corretas?",
-                    description = "Ajude-nos a melhorar os transportes para todos.",
-                    questions = demoUserFeedbackFormQuestions
-                )
-            }
+//            item {
+//                UserFeedbackForm(
+//                    title = "Estas informações estão corretas?",
+//                    description = "Ajude-nos a melhorar os transportes para todos.",
+//                    questions = demoUserFeedbackFormQuestions
+//                )
+//            }
         }
     }
 }

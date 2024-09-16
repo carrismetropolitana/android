@@ -1,9 +1,15 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     id("kotlinx-serialization")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -14,8 +20,8 @@ android {
         applicationId = "pt.carrismetropolitana.mobile"
         minSdk = 26 // was initially 25
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = generateVersionCode()
+        versionName = generateVersionName()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -51,6 +57,19 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+fun generateVersionCode(): Int {
+    return (System.currentTimeMillis() / 1000).toInt()
+}
+
+
+fun generateVersionName(): String {
+    val lisbonTimeZone = TimeZone.getTimeZone("Europe/Lisbon")
+    val sdf = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).apply {
+        timeZone = lisbonTimeZone
+    }
+    return sdf.format(Date())
 }
 
 dependencies {
@@ -94,4 +113,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

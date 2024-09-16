@@ -42,7 +42,7 @@ import java.util.Locale
 
 data class ScheduleItem(
     val hour: String,
-    val minutes: List<String>
+    var minutes: List<String>
 )
 
 val staticSchedule = listOf(

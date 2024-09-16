@@ -1,13 +1,16 @@
 package pt.carrismetropolitana.mobile.composables.components.favorites
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +36,8 @@ import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteItem
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
 import pt.carrismetropolitana.mobile.R
+import pt.carrismetropolitana.mobile.composables.components.Pill
+import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,6 +106,11 @@ fun FavoritesCustomization(
                 })
                 Spacer(modifier = Modifier.height(8.dp))
             }
+
+            item {
+                ComingSoonNewCardOptionButton("Notificação Inteligente") {
+                }
+            }
         }
     }
 }
@@ -107,14 +118,15 @@ fun FavoritesCustomization(
 @Composable
 fun FavoriteItemCard(item: FavoriteItem, onClick: () -> Unit) {
     val linesManager = LocalLinesManager.current
-    Card(elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp), modifier = Modifier.clickable {
-
-    }) {
+    Card(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        modifier = Modifier
+            .clickable { onClick() }
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
-                .clickable { onClick() },
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -139,6 +151,7 @@ fun FavoriteItemCard(item: FavoriteItem, onClick: () -> Unit) {
 fun NewCardOptionButton(option: NewCardOption, onClick: (favoriteType: FavoriteType) -> Unit) {
     Button(
         onClick = { onClick(option.favoriteType) },
+        colors = ButtonDefaults.buttonColors(containerColor = CMYellow),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
@@ -146,8 +159,39 @@ fun NewCardOptionButton(option: NewCardOption, onClick: (favoriteType: FavoriteT
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(option.title)
-            Icon(Icons.Default.Add, contentDescription = "Add")
+            Text(option.title, color = Color.Black)
+            Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.Black)
+        }
+    }
+}
+
+@Composable
+fun ComingSoonNewCardOptionButton(optionTitle: String, onClick: () -> Unit) {
+    Button(
+        onClick = { onClick() },
+        colors = ButtonDefaults.buttonColors(containerColor = CMYellow),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(optionTitle, color = Color.Black)
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .background(color = Color.Gray, shape = RoundedCornerShape(24.dp))
+                    .width(88.dp)
+            ) {
+                Text(
+                    text = "Em breve".uppercase(),
+                    color = Color.White,
+                    fontSize = 14.sp, // Set font size in scaled pixels (sp)
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                )
+            }
         }
     }
 }
@@ -156,5 +200,5 @@ data class NewCardOption(val favoriteType: FavoriteType, val title: String)
 
 fun getNewCardOptions(): List<NewCardOption> = listOf(
     NewCardOption(FavoriteType.STOP,"Paragem Favorita"),
-    NewCardOption(FavoriteType.PATTERN,"Linha Favorita")
+    NewCardOption(FavoriteType.PATTERN,"Linha Favorita"),
 )

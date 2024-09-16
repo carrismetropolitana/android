@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,11 +33,11 @@ fun FavoritesCustomizationButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = CMSystemBackground100,
-            contentColor = CMSystemText200
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
         ),
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color(0xFFE0E0E0)), // Assuming .cmSystemBorder100 is light gray
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline), // Assuming .cmSystemBorder100 is light gray
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
@@ -52,7 +53,6 @@ fun FavoritesCustomizationButton(
             Text(
                 text = "Personalizar",
                 fontWeight = FontWeight.Bold,
-                color = CMSystemText200,
                 fontSize = 16.sp
             )
         }

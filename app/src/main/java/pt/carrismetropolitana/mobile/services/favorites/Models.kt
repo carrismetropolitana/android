@@ -15,7 +15,8 @@ data class FavoriteItem(
     @ColumnInfo(name = "display_name") val displayName: String?,
     @ColumnInfo(name = "line_id") val lineId: String?,
     @ColumnInfo(name = "stop_id") val stopId: String?,
-    @ColumnInfo(name = "pattern_ids") val patternIds: List<String>
+    @ColumnInfo(name = "pattern_ids") val patternIds: List<String>,
+    @ColumnInfo(name = "receive_notifications") val receiveNotifications: Boolean
 ) {
     companion object {
         fun create(
@@ -23,7 +24,8 @@ data class FavoriteItem(
             patternIds: List<String>,
             stopId: String? = null,
             displayName: String? = null,
-            lineId: String? = null
+            lineId: String? = null,
+            receiveNotifications: Boolean = false
         ): FavoriteItem {
             val id = when (type) {
                 FavoriteType.PATTERN -> "favorites:pattern:${patternIds.firstOrNull()}"
@@ -35,7 +37,8 @@ data class FavoriteItem(
                 displayName = displayName,
                 lineId = lineId,
                 stopId = stopId,
-                patternIds = if (type == FavoriteType.PATTERN) patternIds.take(1) else patternIds
+                patternIds = if (type == FavoriteType.PATTERN) patternIds.take(1) else patternIds,
+                receiveNotifications = receiveNotifications
             )
         }
     }

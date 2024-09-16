@@ -32,10 +32,10 @@ fun SplashScreen(
     ) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(
             if (isSystemInDarkTheme()) R.raw.cm_logo_loop_dark else R.raw.cm_logo_loop ))
-        val progress by animateLottieCompositionAsState(composition, speed = 1.5F)
+        val progress by animateLottieCompositionAsState(composition, speed = 2.3F)
 
         LaunchedEffect(Unit) {
-            delay(3000)
+            delay(1500)
             navController.navigate(Screens.Home.route) {
                 // pop from nav back stack up to splash (including splash) to avoid back button returning to splash
                 popUpTo(Screens.Splash.route) {

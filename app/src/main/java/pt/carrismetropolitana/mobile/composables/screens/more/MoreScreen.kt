@@ -1,6 +1,8 @@
 package pt.carrismetropolitana.mobile.composables.screens.more
 
 import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Arrangement
@@ -241,6 +243,22 @@ fun MoreScreen(navController: NavController, paddingValues: PaddingValues, conte
                     )
                 }
             }
+
+            getVersionString(context)?.let {
+                Text("Versão $it", fontSize = 16.sp, color = Color.Gray, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 14.dp))
+            }
         }
     }
+}
+
+fun getVersionString(context: Context): String? {
+    try {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0);
+        val versionName = packageInfo.versionName;
+        val versionCode = packageInfo.versionCode;
+        return "$versionName ($versionCode)";
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace();
+    }
+    return null;
 }

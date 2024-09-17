@@ -1,5 +1,6 @@
 package pt.carrismetropolitana.mobile.composables.screens.lines
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -168,8 +170,16 @@ fun LineDetailsView(
                 },
                 actions = {
                     IconButton(onClick = {
-//                        val sendIntent: Intent = Intent(Intent.ACTION_SEND, Uri.parse("https://beta.carrismetropolitana.pt/lines/1523"))
-//                        context.startActivity(sendIntent)
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, "https://beta.carrismetropolitana.pt/lines/${lineId}")
+                            putExtra(Intent.EXTRA_TITLE, "Linha ${lineId} — ${line?.longName ?: ""}")
+                            type = "text/plain"
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        }
+
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
                     }) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
                     }

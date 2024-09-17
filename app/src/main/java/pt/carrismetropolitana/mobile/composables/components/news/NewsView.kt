@@ -1,5 +1,6 @@
 package pt.carrismetropolitana.mobile.composables.components.news
 
+import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.services.cmwordpressapi.News
 
@@ -19,8 +21,11 @@ import pt.carrismetropolitana.mobile.services.cmwordpressapi.News
 @Composable
 fun NewsView(
     newsUrl: String,
+    newsTitle: String,
     navController: NavController
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -32,8 +37,16 @@ fun NewsView(
                 },
                 actions = {
                     IconButton(onClick = {
-//                        val sendIntent: Intent = Intent(Intent.ACTION_SEND, Uri.parse(newsUrl))
-//                        context.startActivity(sendIntent)
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, newsUrl)
+                            putExtra(Intent.EXTRA_TITLE, "Notícia — $newsTitle")
+                            type = "text/plain"
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        }
+
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
                     }) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
                     }

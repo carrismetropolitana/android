@@ -100,7 +100,7 @@ sealed class Screens(val route : String) {
     // More screen sub-destinations
     object ENCM: Screens("encm")
     object FAQ: Screens("faq")
-    object News: Screens("news?url={url}")
+    object News: Screens("news?url={url}&title={title}")
 
     // Common sub-destinations
     object LineDetails: Screens("line_details/{lineId}?overridePatternId={overridePatternId}")
@@ -511,7 +511,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                     it.arguments?.getString("url")
                                         ?.let { url ->
-                                            NewsView(newsUrl = url, navController = navController)
+                                            NewsView(newsUrl = url, newsTitle = it.arguments?.getString("title") ?: "", navController = navController)
                                         }
                                 }
 

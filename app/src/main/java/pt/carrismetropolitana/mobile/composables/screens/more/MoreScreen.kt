@@ -79,7 +79,7 @@ fun MoreScreen(navController: NavController, paddingValues: PaddingValues, conte
             NewsCarousel(
                 news = news,
                 onNewsClick = { news ->
-                    navController.navigate("news?url=${news.link}")
+                    navController.navigate("news?url=${news.link}&title=${news.title.rendered}")
                 }
             )
 

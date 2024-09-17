@@ -1,5 +1,6 @@
 package pt.carrismetropolitana.mobile.composables.screens.stops
 
+import android.content.Intent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,6 +60,7 @@ fun AboutStopView(
     navController: NavController,
     parentPadding: PaddingValues
 ) {
+    val context = LocalContext.current
     val stopsManager = LocalStopsManager.current
 
     val stops = stopsManager.data.collectAsState().value
@@ -87,8 +90,16 @@ fun AboutStopView(
                 },
                 actions = {
                     IconButton(onClick = {
-//                        val sendIntent: Intent = Intent(Intent.ACTION_SEND, Uri.parse("https://beta.carrismetropolitana.pt/lines/1523"))
-//                        context.startActivity(sendIntent)
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, "https://beta.carrismetropolitana.pt/stops/${stopId}")
+                            putExtra(Intent.EXTRA_TITLE, "Paragem ${stopId} — ${stop?.name ?: ""}")
+                            type = "text/plain"
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        }
+
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
                     }) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
                     }

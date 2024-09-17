@@ -47,10 +47,18 @@ data class ScheduleItem(
 
 val staticSchedule = listOf(
     ScheduleItem(hour = "00", minutes = listOf(("15"))),
+    ScheduleItem(hour = "01", minutes = listOf("10", "20", "30", "40", "50")),
+    ScheduleItem(hour = "02", minutes = listOf("10", "20", "30", "40", "50")),
+    ScheduleItem(hour = "03", minutes = listOf("10", "20", "30", "40", "50")),
+    ScheduleItem(hour = "04", minutes = listOf("10", "20", "30", "40", "50")),
+    ScheduleItem(hour = "05", minutes = listOf("10", "20", "30", "40", "50")),
+    ScheduleItem(hour = "06", minutes = listOf("10", "20", "30", "40", "50")),
     ScheduleItem(hour = "12", minutes = listOf("15", "30", "45")),
     ScheduleItem(hour = "17", minutes = listOf(("07"))),
     ScheduleItem(hour = "19", minutes = listOf(("15"))),
+    ScheduleItem(hour = "20", minutes = listOf("10", "20", "30", "40", "50")),
     ScheduleItem(hour = "21", minutes = listOf(("15"))),
+    ScheduleItem(hour = "22", minutes = listOf("10", "20", "30", "40", "50")),
     ScheduleItem(hour = "23", minutes = listOf(("15")))
 )
 
@@ -128,7 +136,7 @@ fun StopScheduleView(
 
 @Composable
 fun ScheduleItem(isFirst: Boolean = false, isLast: Boolean = false, hour: String, minutes: List<String>) {
-    Column {
+    Column{
         Box(
             modifier = Modifier
                 .background(
@@ -151,7 +159,7 @@ fun ScheduleItem(isFirst: Boolean = false, isLast: Boolean = false, hour: String
 }
 
 fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
 }
 

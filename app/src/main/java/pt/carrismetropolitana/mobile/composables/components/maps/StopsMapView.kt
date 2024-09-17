@@ -209,7 +209,8 @@ fun enableLocationComponent(map: MapLibreMap, loadedMapStyle: Style, context: Co
 
         // Activate with a built LocationComponentActivationOptions object
         locationComponent.activateLocationComponent(
-            LocationComponentActivationOptions.builder(context, loadedMapStyle)
+            LocationComponentActivationOptions
+                .builder(context, loadedMapStyle)
                 .locationComponentOptions(locationComponentOptions)
                 .useDefaultLocationEngine(true)
                 .locationEngineRequest(

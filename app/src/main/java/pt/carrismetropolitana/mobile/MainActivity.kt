@@ -31,6 +31,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -41,7 +48,10 @@ import androidx.room.Room
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.messaging
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 //import pt.carrismetropolitana.mobile.composables.FavoriteCustomizationView
 import pt.carrismetropolitana.mobile.composables.components.favorites.FavoriteItemCustomization
 import pt.carrismetropolitana.mobile.composables.components.news.NewsView
@@ -116,6 +126,23 @@ sealed class Screens(val route : String) {
     object VehicleRealtimeTracking: Screens("vehicle_realtime_tracking/{vehicleId}")
 
     object StartupMessage: Screens("startup_message?url={url}&presentationType={presentationType}")
+}
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "appUsageDetails")
+val FIRST_TIME_LAUNCH = longPreferencesKey("firstTimeLaunch")
+
+fun getFirstTimeLaunch(context: Context): Flow<Long> {
+    return context.dataStore.data.map { preferences ->
+        preferences[FIRST_TIME_LAUNCH] ?: 0L
+    }
+}
+
+fun setFirstTimeLaunch(context: Context, firstTimeLaunch: Long) {
+    runBlocking {
+        context.dataStore.edit { preferences ->
+            preferences[FIRST_TIME_LAUNCH] = firstTimeLaunch
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -211,6 +238,13 @@ class MainActivity : ComponentActivity() {
 
                 var shownStartupMessage by rememberSaveable {
                     mutableStateOf(false)
+                }
+
+                LaunchedEffect(Unit) {
+                    val firstTimeLaunch = getFirstTimeLaunch(this@MainActivity)
+                    if (firstTimeLaunch.first() == 0L) {
+                        setFirstTimeLaunch(this@MainActivity, System.currentTimeMillis())
+                    }
                 }
 
                 CompositionLocalProvider(

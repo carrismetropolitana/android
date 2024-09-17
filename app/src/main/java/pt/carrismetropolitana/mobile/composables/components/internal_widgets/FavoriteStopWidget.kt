@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -117,6 +118,29 @@ fun FavoriteStopWidget(
                     )
                 }
             }
+
+
+            if (stop == null) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .height(20.dp)
+                            .width(200.dp)
+                            .clip(RoundedCornerShape(50))
+                            .shimmerEffect()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .height(20.dp)
+                            .width(128.dp)
+                            .clip(RoundedCornerShape(50))
+                            .shimmerEffect()
+                    )
+                }
+            }
+
 //            Icon(
 //                imageVector = ImageVector.vectorResource(R.drawable.phosphoricons_star_fill),
 //                contentDescription = "Favorite",
@@ -176,16 +200,21 @@ fun FavoriteStopPatternItem(
                     size = 60
                 )
             } else {
-                Box(modifier = Modifier.shimmerEffect())
+                Box(modifier = Modifier.width(72.dp).height(24.dp).clip(shape = RoundedCornerShape(50)).shimmerEffect())
             }
             Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Arrow", Modifier.size(15.dp))
-            Box(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = pattern?.headsign ?: "",
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+
+            if (pattern != null) {
+                Box(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = pattern?.headsign ?: "",
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            } else {
+                Box(modifier = Modifier.weight(1f).height(20.dp).clip(shape = RoundedCornerShape(50)).shimmerEffect())
             }
         }
 

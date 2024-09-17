@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,6 +40,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.Pattern
 import pt.carrismetropolitana.mobile.services.cmapi.Shape
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteItem
+import pt.carrismetropolitana.mobile.ui.animations.shimmerEffect
 
 @Composable
 fun FavoriteLineWidget(
@@ -83,11 +85,26 @@ fun FavoriteLineWidget(
         ) {
             if (line != null) {
                 Pill(text = line.shortName, color = Color(line.color.toColorInt()), textColor = Color(line.textColor.toColorInt()), size = 60)
+            } else {
+                Box(modifier = Modifier
+                    .width(72.dp)
+                    .height(24.dp)
+                    .clip(shape = RoundedCornerShape(50))
+                    .shimmerEffect())
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                pattern?.headsign ?: "", fontWeight = FontWeight.Bold
-            )
+            if (pattern != null) {
+                Text(
+                    pattern?.headsign ?: "", fontWeight = FontWeight.Bold
+                )
+            } else {
+                Spacer(modifier = Modifier.width(12.dp))
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .height(20.dp)
+                    .clip(shape = RoundedCornerShape(50))
+                    .shimmerEffect())
+            }
         }
 
         HorizontalDivider()
@@ -105,6 +122,10 @@ fun FavoriteLineWidget(
                     vehicles = filteredVehicles,
                     disabledUserInteraction = true
                 )
+            } else {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .shimmerEffect())
             }
         }
     }

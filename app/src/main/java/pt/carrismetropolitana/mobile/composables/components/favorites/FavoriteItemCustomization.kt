@@ -18,8 +18,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +32,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -63,6 +66,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.Pattern
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteItem
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
 import pt.carrismetropolitana.mobile.ui.theme.CMSystemBorder100
+import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -195,6 +199,9 @@ fun FavoriteItemCustomization(
 
                 Card(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    ),
                     modifier = Modifier
                         .padding(vertical = 12.dp)
                         .clickable {
@@ -266,6 +273,9 @@ fun FavoriteItemCustomization(
 
                 Card(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    ),
                     modifier = Modifier
                         .padding(vertical = 12.dp)
                 ) {
@@ -287,10 +297,14 @@ fun FavoriteItemCustomization(
                                             .fillMaxWidth()
                                             .padding(horizontal = 12.dp)
                                             .clickable {
-                                                if (selectedPatternIds.contains(pattern.id)) {
-                                                    selectedPatternIds -= pattern.id
+                                                if (favoriteType == FavoriteType.STOP) {
+                                                    if (selectedPatternIds.contains(pattern.id)) {
+                                                        selectedPatternIds -= pattern.id
+                                                    } else {
+                                                        selectedPatternIds += pattern.id
+                                                    }
                                                 } else {
-                                                    selectedPatternIds += pattern.id
+                                                    selectedPatternIds = listOf(pattern.id)
                                                 }
                                             }
                                     ) {
@@ -303,11 +317,17 @@ fun FavoriteItemCustomization(
                                                     } else {
                                                         selectedPatternIds -= pattern.id
                                                     }
-                                                })
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkedColor = MaterialTheme.colorScheme.secondary,
+                                                    uncheckedColor = MaterialTheme.colorScheme.onSurface,
+                                                    checkmarkColor = CMYellow
+                                                )
+                                            )
                                             Pill(text = pattern.lineId, color = Color(pattern.color.toColorInt()), textColor = Color(pattern.textColor.toColorInt()), size = 60)
                                             Text(pattern.headsign)
                                         } else {
-                                            RadioButton(selected = selectedPatternIds.contains(pattern.id), onClick = {
+                                            RadioButton(selected = selectedPatternIds.getOrNull(0) == pattern.id, onClick = {
                                                 selectedPatternIds = listOf(pattern.id)
                                             })
                                             Text(pattern.headsign)
@@ -352,6 +372,9 @@ fun FavoriteItemCustomization(
 
                 Card(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    ),
                     modifier = Modifier
                         .padding(vertical = 12.dp)
                 ) {
@@ -366,7 +389,14 @@ fun FavoriteItemCustomization(
                         Text("Receber notificações")
                         Switch(
                             checked = receiveNotifications,
-                            onCheckedChange = { receiveNotifications = it })
+                            onCheckedChange = { receiveNotifications = it },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                                checkedTrackColor = CMYellow,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
                     }
                 }
             }

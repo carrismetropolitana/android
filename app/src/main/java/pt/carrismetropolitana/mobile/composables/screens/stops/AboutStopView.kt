@@ -29,8 +29,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +45,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
+import pt.carrismetropolitana.mobile.LocalAlertsManager
+import pt.carrismetropolitana.mobile.LocalFavoritesManager
 import pt.carrismetropolitana.mobile.LocalStopsManager
 import pt.carrismetropolitana.mobile.R
+import pt.carrismetropolitana.mobile.Screens
 import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.composables.components.feedback.UserFeedbackForm
 import pt.carrismetropolitana.mobile.composables.components.feedback.demoUserFeedbackFormQuestions
+import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsFilterForInformedEntities
+import pt.carrismetropolitana.mobile.composables.components.transit.alerts.filterAlertEntitiesForInformedEntity
 import pt.carrismetropolitana.mobile.composables.screens.lines.LineItem
 import pt.carrismetropolitana.mobile.composables.screens.lines.SquareButton
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
@@ -61,15 +69,21 @@ fun AboutStopView(
     parentPadding: PaddingValues
 ) {
     val context = LocalContext.current
+    val alertsManager = LocalAlertsManager.current
     val stopsManager = LocalStopsManager.current
+    val favoritesManager = LocalFavoritesManager.current
 
     val stops = stopsManager.data.collectAsState().value
     val stop = stops.firstOrNull { it.id == stopId }
 
     val patternsFromStop = remember { mutableStateListOf<Pattern>() }
 
+    var alertsCountForStop by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(Unit) {
         if (stop == null) return@LaunchedEffect
+
+        alertsCountForStop = filterAlertEntitiesForInformedEntity(alertsManager.data.value, AlertsFilterForInformedEntities.STOP, stopId).count() // TODO: this is being done twice
 
         for (patternId in stop.patterns!!) {
             val pattern = CMAPI.shared.getPattern(patternId) ?: continue // elvis operator :)
@@ -157,8 +171,9 @@ fun AboutStopView(
                         Text(stop?.name ?: "", fontWeight = FontWeight.Bold, fontSize = 24.sp)
 
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            val favorited = favoritesManager.isFavorited(stopId, FavoriteType.STOP)
                             SquareButton(
-                                icon = ImageVector.vectorResource(R.drawable.phosphoricons_star),
+                                icon = ImageVector.vectorResource(if (favorited) R.drawable.phosphoricons_star_fill else R.drawable.phosphoricons_star),
                                 iconTint = Color("#ffcc00".toColorInt()),
                                 iconContentDescription = "Favorite Stop Icon",
                                 size = 60
@@ -172,6 +187,20 @@ fun AboutStopView(
                             ) {
                                 /* TODO */
                             }
+                            SquareButton(
+                                icon = ImageVector.vectorResource(R.drawable.phosphoricons_warning_fill),
+                                iconTint = Color.Black,
+                                iconContentDescription = "Alerts",
+                                size = 60,
+                                badgeNumber = alertsCountForStop,
+                                action = {
+                                    navController.navigate(
+                                        Screens.AlertsForEntity.route.replace(
+                                            "{entityType}",
+                                            "STOP"
+                                        ).replace("{entityId}", stopId)
+                                    )
+                                })
                         }
 
                         Row(

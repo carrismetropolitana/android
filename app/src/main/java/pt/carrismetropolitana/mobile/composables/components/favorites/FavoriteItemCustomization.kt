@@ -2,6 +2,7 @@ package pt.carrismetropolitana.mobile.composables.components.favorites
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -236,12 +237,14 @@ fun FavoriteItemCustomization(
                                     val stop = stopsManager.data.collectAsState().value.find {
                                         it.id == (selectedFavoriteRootItemId ?: favoriteId)
                                     }!!
-                                    Column {
-                                        Text(stop.name)
-                                        Text(
-                                            text = if (stop.locality == stop.municipalityName) stop.locality else (if (stop.locality == null) stop.municipalityName else "${stop.locality}, ${stop.municipalityName}"),
-                                            color = Color.Gray
-                                        )
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        Column {
+                                            Text(stop.name)
+                                            Text(
+                                                text = if (stop.locality == stop.municipalityName) stop.locality else (if (stop.locality == null) stop.municipalityName else "${stop.locality}, ${stop.municipalityName}"),
+                                                color = Color.Gray
+                                            )
+                                        }
                                     }
                                 }
                             } else {

@@ -1,5 +1,6 @@
 package pt.carrismetropolitana.mobile.composables.screens.stops
 
+import android.location.Location
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -106,6 +107,9 @@ fun StopsScreen(
         }
     }
 
+//    var cameraPosition = rememberSaveable { mutableStateOf(CameraPosition.Builder().target(LatLng(38.7, -9.0)).zoom(8.9).build()) }
+    val userLocation = rememberSaveable { mutableStateOf(Location(null)) }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceAround,
@@ -114,6 +118,8 @@ fun StopsScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             StopsMapView(
                 stops = stopsManager.data.collectAsState().value,
+//                cameraPosition = cameraPosition,
+                userLocation = userLocation,
                 mapVisualStyle = mapVisualStyle,
                 onStopClick = { stopId ->
                     selectedStopId.value = stopId
@@ -183,7 +189,9 @@ fun StopsScreen(
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     MapFloatingButton(iconResourceId = R.drawable.phosphoricons_navigation_arrow_fill) {
-
+//                        val userLocationLatLng = LatLng(userLocation.value.latitude, userLocation.value.longitude)
+//                        println("Setting camera position to ${userLocationLatLng.latitude}, ${userLocationLatLng.longitude}")
+//                        cameraPosition.value = CameraPosition.Builder().target(userLocationLatLng).zoom(10.0).build() // STOPSHIP: solve state stuff
                     }
                     MapFloatingButton(iconResourceId = R.drawable.phosphoricons_map_trifold) {
                         mapVisualStyle = if (mapVisualStyle == MapVisualStyle.MAP) {

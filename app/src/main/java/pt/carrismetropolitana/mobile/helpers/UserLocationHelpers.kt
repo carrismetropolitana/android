@@ -10,7 +10,10 @@ import androidx.core.content.ContextCompat
 fun requestLocationPermission(activity: ComponentActivity) {
     ActivityCompat.requestPermissions(
         activity,
-        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+        arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ),
         1
     )
 }
@@ -19,5 +22,8 @@ fun checkLocationPermission(context: Context): Boolean {
     return ContextCompat.checkSelfPermission(
         context,
         Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.ACCESS_COARSE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
 }

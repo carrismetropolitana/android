@@ -64,6 +64,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
 import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
+import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,10 +98,11 @@ fun StopsScreen(
 
     LaunchedEffect(text) {
         if (text.isNotEmpty()) {
+            val normalizedText = text.normalizedForSearch()
             searchFilteredStops = stopsManager.data.value.filter {
-                it.name.contains(text, true)
-                        || it.id.contains(text, true)
-                        || it.ttsName?.contains(text, true) ?: false
+                it.name.normalizedForSearch().contains(normalizedText, true)
+                        || it.id.normalizedForSearch().contains(normalizedText, true)
+                        || it.ttsName?.normalizedForSearch()?.contains(normalizedText, true) ?: false
             }
         } else {
             searchFilteredStops = listOf()

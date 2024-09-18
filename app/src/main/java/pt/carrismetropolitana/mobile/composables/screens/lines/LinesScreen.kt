@@ -39,6 +39,7 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.services.cmapi.Line
+import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,9 +61,10 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
 
     LaunchedEffect(text) {
         if (text.isNotEmpty()) {
+            val normalizedText = text.normalizedForSearch()
             searchFilteredLines = linesManager.data.value.filter {
-                it.shortName.contains(text, true)
-                        || it.longName.contains(text, true)
+                it.shortName.normalizedForSearch().contains(normalizedText, true)
+                        || it.longName.normalizedForSearch().contains(normalizedText, true)
             }
         } else {
             searchFilteredLines = listOf()

@@ -38,6 +38,17 @@ fun NewsWebView(
                         """.trimIndent(), null)
                 }
 
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    view?.evaluateJavascript(
+                        """
+                        (function() {
+                            var style = document.createElement('style');
+                            style.innerHTML = '.main-header, #site-footer { display: none !important; }';
+                            document.head.appendChild(style);
+                        })();
+                        """.trimIndent(), null)
+                }
+
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     val newUrl = request?.url.toString()
                     if (newUrl != url) {

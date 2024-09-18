@@ -164,18 +164,8 @@ fun HomeScreen(parentPaddingValues: PaddingValues, navController: NavController,
                     modifier = Modifier
                         .padding(top = 48.dp)
                         .padding(horizontal = 24.dp)
+                        .verticalScroll(rememberScrollState())
                 )
-//                TextButton(onClick = {
-//                    val favorite = FavoriteItem.create(
-//                        type = FavoriteType.STOP,
-//                        stopId = "060031",
-//                        patternIds = listOf("1704_0_1", "1704_1_1", "1716_0_1"),
-//                        displayName = "Alameda Edgar Cardoso"
-//                    )
-//                    favoritesManager.addFavorite(favorite)
-//                }) {
-//                    Text("Add example stop widget")
-//                }
             } else {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,

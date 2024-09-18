@@ -120,6 +120,7 @@ fun FavoriteItemCard(item: FavoriteItem, onClick: () -> Unit) {
     val linesManager = LocalLinesManager.current
     Card(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         modifier = Modifier
             .clickable { onClick() }
     ) {

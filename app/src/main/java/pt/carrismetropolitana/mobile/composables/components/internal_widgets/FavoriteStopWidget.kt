@@ -110,12 +110,14 @@ fun FavoriteStopWidget(
             verticalAlignment = Alignment.CenterVertically
         ) {
             stop?.let {
-                Column {
-                    Text(it.name, fontWeight = FontWeight.Bold)
-                    Text(
-                        text = if (it.locality == it.municipalityName) it.locality else (if (it.locality == null) it.municipalityName else "${it.locality}, ${it.municipalityName}"),
-                        color = Color.Gray
-                    )
+                Box(modifier = Modifier.weight(1f)) {
+                    Column {
+                        Text(it.name, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = if (it.locality == it.municipalityName) it.locality else (if (it.locality == null) it.municipalityName else "${it.locality}, ${it.municipalityName}"),
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
 
@@ -151,7 +153,6 @@ fun FavoriteStopWidget(
                 imageVector = ImageVector.vectorResource(R.drawable.chevron_right),
                 contentDescription = "Chevron Right Icon",
                 tint = Color.Gray,
-                modifier = Modifier.padding(end = 16.dp)
             )
         }
 

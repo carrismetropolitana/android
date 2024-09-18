@@ -136,7 +136,8 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(bottom = parentPaddingValues.calculateBottomPadding()),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

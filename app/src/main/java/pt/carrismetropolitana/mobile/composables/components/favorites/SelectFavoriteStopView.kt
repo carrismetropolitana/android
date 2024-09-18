@@ -34,6 +34,7 @@ import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsL
 import pt.carrismetropolitana.mobile.composables.screens.lines.LinesList
 import pt.carrismetropolitana.mobile.services.cmapi.Line
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
+import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -70,10 +71,11 @@ fun SelectFavoriteStopView(
                     query = text,
                     onQueryChange = {
                         text = it
+                        val normalizedText = text.normalizedForSearch()
                         searchFilteredStops = stopsManager.data.value.filter {stop ->
-                            stop.name.contains(text, true)
-                                    || stop.id.contains(text, true)
-                                    || stop.ttsName?.contains(text, true)  ?: false
+                            stop.name.normalizedForSearch().contains(normalizedText, true)
+                                    || stop.id.normalizedForSearch().contains(normalizedText, true)
+                                    || stop.ttsName?.normalizedForSearch()?.contains(normalizedText, true) ?: false
                         }
                     },
                     onSearch = {

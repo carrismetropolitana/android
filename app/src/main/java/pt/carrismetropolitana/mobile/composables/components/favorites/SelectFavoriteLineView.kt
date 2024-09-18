@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LocalLinesManager
 import pt.carrismetropolitana.mobile.composables.screens.lines.LinesList
 import pt.carrismetropolitana.mobile.services.cmapi.Line
+import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -53,9 +54,10 @@ fun SelectFavoriteLineView(
 
     LaunchedEffect(text) {
         if (text.isNotEmpty()) {
+            val normalizedText = text.normalizedForSearch()
             searchFilteredLines = linesManager.data.value.filter {
-                it.shortName.contains(text, true)
-                        || it.longName.contains(text, true)
+                it.shortName.normalizedForSearch().contains(normalizedText, true)
+                        || it.longName.normalizedForSearch().contains(normalizedText, true)
             }
         } else {
             searchFilteredLines = listOf()

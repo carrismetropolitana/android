@@ -380,7 +380,7 @@ fun StopDetailsSheetView(
                 .padding(bottom = 12.dp)
         ) {
             val filteredArrivals = filterAndSortStopArrivalsByCurrentAndFuture(arrivalsForStop)
-            itemsIndexed (filteredArrivals, key = { _, arrival -> arrival.tripId }) { index, arrival ->
+            itemsIndexed (filteredArrivals, key = { _, arrival -> "${arrival.tripId}_${arrival.stopSequence}_${arrival.scheduledArrivalUnix ?: 0}" }) { index, arrival ->
                 val line = linesManager.data.collectAsState().value.firstOrNull { it.id == arrival.lineId }
 //                val isLast = index == filteredArrivals.lastIndex
                 if (line != null) {

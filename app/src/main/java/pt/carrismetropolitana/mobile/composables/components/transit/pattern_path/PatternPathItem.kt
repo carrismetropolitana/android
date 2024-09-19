@@ -181,12 +181,14 @@ fun PatternPathItem(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        var nextArrivalIsRealtime = false
                         if (nextArrivalsForStop.isNotEmpty()) {
                             nextArrivalsForStop[0].estimatedArrivalUnix?.let {
                                 Text(
                                     "${getRoundedMinuteDifferenceFromNow(it)} minutos",
                                     color = SmoothGreen
                                 )
+                                nextArrivalIsRealtime = true
                             }
                         }
                         if (expanded) {
@@ -196,7 +198,7 @@ fun PatternPathItem(
                                     contentDescription = "Clock icon",
                                     Modifier.size(20.dp)
                                 )
-                                nextArrivalsForStop.drop(1).take(3).forEach {
+                                nextArrivalsForStop.drop(if (nextArrivalIsRealtime) 1 else 0).take(3).forEach {
                                     if (it.estimatedArrivalUnix != null && it.estimatedArrival != null) {
                                         Text(
                                             adjustTimeFormat(

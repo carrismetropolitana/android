@@ -3,10 +3,14 @@ package pt.carrismetropolitana.mobile.composables.screens.home
 import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +60,7 @@ import pt.carrismetropolitana.mobile.services.cmwebapi.CMWebAPI
 import pt.carrismetropolitana.mobile.services.cmwebapi.PresentationType
 import pt.carrismetropolitana.mobile.services.cmwebapi.StartupMessage
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
+import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 import java.util.Locale
 
 
@@ -133,20 +139,24 @@ fun HomeScreen(parentPaddingValues: PaddingValues, navController: NavController,
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                modifier = Modifier.height(120.dp),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color("#FFDD01".toColorInt()),
-                    // titleContentColor = MaterialTheme.colorScheme.secondary,
-                ),
-                title = {
-                    Image(
-                        painter = painterResource(id = R.drawable.cm_logo_white),
-                        contentDescription = "Logo Carris Metropolitana",
-                        modifier = Modifier.padding(vertical = 10.dp)
-                    )
-                },
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(
+                        CMYellow
+                    ),
+                contentAlignment = Alignment.BottomStart
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.cm_logo_white),
+                    contentDescription = "Logo Carris Metropolitana",
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .padding(start = 10.dp)
+                        .height(60.dp)
+                )
+            }
         }
     ) { paddingValues ->
         Column(
@@ -157,7 +167,6 @@ fun HomeScreen(parentPaddingValues: PaddingValues, navController: NavController,
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
             if (favoritesManager.favorites.isEmpty()) {
                 UnregisteredUserView(
                     navController = navController,

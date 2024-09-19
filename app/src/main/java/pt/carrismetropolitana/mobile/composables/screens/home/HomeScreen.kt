@@ -192,8 +192,9 @@ fun HomeScreen(parentPaddingValues: PaddingValues, navController: NavController,
                 Column(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
-                        .padding(top = 12.dp)
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(rememberScrollState())
+                        .padding(top = 18.dp)
+                        .padding(bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     for (favorite in favoritesManager.favorites) {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -100,9 +101,15 @@ fun StopScheduleView(
 //                .height(64.dp)
 //        )
 
-        FlowRow(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
             ScheduleItem(isFirst = true, hour = "Hora", minutes = listOf(("Min")))
-            for (item in scheduleItems) {
+            scheduleItems.forEachIndexed { index, item ->
+                if (index != 0 && scheduleItems[index - 1].hour.toInt() != (item.hour.toInt() - 1)) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
                 ScheduleItem(
                     isLast = item == scheduleItems.last(),
                     hour = item.hour,
@@ -149,11 +156,11 @@ fun ScheduleItem(isFirst: Boolean = false, isLast: Boolean = false, hour: String
                     )
                 )
         ){
-            Text(hour, color = Color.White, modifier = Modifier.padding(horizontal = 5.dp))
+            Text(hour, color = Color.White, fontWeight = FontWeight.Bold, modifier = Modifier.padding(5.dp))
         }
 
         for (minute in minutes) {
-            Text(minute, color = Color.Black, modifier = Modifier.padding(horizontal = 5.dp))
+            Text(minute, color = Color.Black, modifier = Modifier.padding(2.dp))
         }
     }
 }

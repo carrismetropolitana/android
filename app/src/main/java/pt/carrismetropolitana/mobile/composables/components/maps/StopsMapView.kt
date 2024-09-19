@@ -71,7 +71,7 @@ fun StopsMapView(
                 getMapAsync { map ->
                     map.setStyle("https://maps.carrismetropolitana.pt/styles/default/style.json") { style ->
 
-//                        enableLocationComponent(map, style, context, userLocation)
+                        enableLocationComponent(map, style, context, userLocation)
 
                         // Hide attributions
                         map.uiSettings.isAttributionEnabled = false

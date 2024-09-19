@@ -49,6 +49,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.PathEntry
 import pt.carrismetropolitana.mobile.services.cmapi.PatternRealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
+import pt.carrismetropolitana.mobile.ui.animations.RealtimePingAnimation
 import pt.carrismetropolitana.mobile.ui.theme.CarrisMetropolitanaTheme
 import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 import kotlin.math.exp
@@ -184,6 +185,11 @@ fun PatternPathItem(
                         var nextArrivalIsRealtime = false
                         if (nextArrivalsForStop.isNotEmpty()) {
                             nextArrivalsForStop[0].estimatedArrivalUnix?.let {
+                                Box(modifier = Modifier.size(18.dp)) {
+                                    RealtimePingAnimation(
+                                        color = SmoothGreen
+                                    )
+                                }
                                 Text(
                                     "${getRoundedMinuteDifferenceFromNow(it)} minutos",
                                     color = SmoothGreen

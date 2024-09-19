@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -63,6 +65,7 @@ import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsL
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
+import pt.carrismetropolitana.mobile.ui.animations.RealtimePingAnimation
 import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 import java.util.Locale
@@ -452,6 +455,12 @@ fun ArrivalItem(arrival: RealtimeETA, color: Color, textColor: Color, onClick: (
 
 
         if (arrival.estimatedArrivalUnix != null) {
+            Box(modifier = Modifier.size(18.dp)) {
+                RealtimePingAnimation(
+                    color = SmoothGreen
+                )
+            }
+            Spacer(modifier = Modifier.width(4.dp))
             Text("${getRoundedMinuteDifferenceFromNow(arrival.estimatedArrivalUnix)} min", color = SmoothGreen, fontWeight = FontWeight.Bold)
         } else {
             arrival.scheduledArrival?.let {

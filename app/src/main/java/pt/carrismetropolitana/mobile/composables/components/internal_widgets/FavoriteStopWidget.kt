@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,6 +58,7 @@ import pt.carrismetropolitana.mobile.services.cmapi.PatternRealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteItem
+import pt.carrismetropolitana.mobile.ui.animations.RealtimePingAnimation
 import pt.carrismetropolitana.mobile.ui.animations.shimmerEffect
 import pt.carrismetropolitana.mobile.ui.theme.CMSystemBorder100
 import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
@@ -201,7 +203,11 @@ fun FavoriteStopPatternItem(
                     size = 60
                 )
             } else {
-                Box(modifier = Modifier.width(72.dp).height(24.dp).clip(shape = RoundedCornerShape(50)).shimmerEffect())
+                Box(modifier = Modifier
+                    .width(72.dp)
+                    .height(24.dp)
+                    .clip(shape = RoundedCornerShape(50))
+                    .shimmerEffect())
             }
             Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Arrow", Modifier.size(15.dp))
 
@@ -215,12 +221,22 @@ fun FavoriteStopPatternItem(
                     )
                 }
             } else {
-                Box(modifier = Modifier.weight(1f).height(20.dp).clip(shape = RoundedCornerShape(50)).shimmerEffect())
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .height(20.dp)
+                    .clip(shape = RoundedCornerShape(50))
+                    .shimmerEffect())
             }
         }
 
         if (nextArrival != null) {
             if (nextArrival.estimatedArrivalUnix != null) {
+                Box(modifier = Modifier.size(18.dp)) {
+                    RealtimePingAnimation(
+                        color = SmoothGreen
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     "${getRoundedMinuteDifferenceFromNow(nextArrival.estimatedArrivalUnix)} min",
                     color = SmoothGreen,

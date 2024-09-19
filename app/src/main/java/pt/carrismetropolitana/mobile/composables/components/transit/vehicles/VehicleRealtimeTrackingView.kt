@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -47,6 +48,8 @@ import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.Pattern
 import pt.carrismetropolitana.mobile.services.cmapi.Shape
 import pt.carrismetropolitana.mobile.services.cmapi.Vehicle
+import pt.carrismetropolitana.mobile.ui.animations.RealtimePingAnimation
+import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,8 +127,13 @@ fun VehicleRealtimeTrackingView(
                         .fillMaxWidth()
                         .padding(vertical = 18.dp, horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+                    Box(modifier = Modifier.size(18.dp)) {
+                        RealtimePingAnimation(
+                            color = SmoothGreen
+                        )
+                    }
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(13.dp))

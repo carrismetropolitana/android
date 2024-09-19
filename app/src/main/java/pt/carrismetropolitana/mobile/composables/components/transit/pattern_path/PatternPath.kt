@@ -99,14 +99,6 @@ fun filterAndSortPatternArrivalsByCurrentAndFuture(etas: List<PatternRealtimeETA
         val estimatedArrivalAfterMidnight = tripHasEstimatedArrival && eta.estimatedArrival!!.substring(0, 2).toInt() > 23
         val scheduledArrivalAfterMidnight = tripHasScheduledArrival && eta.scheduledArrival!!.substring(0, 2).toInt() > 23
 
-        // Fix for past midnight estimatedArrivals represented as being in the day before
-        if (tripHasEstimatedArrival &&!estimatedArrivalAfterMidnight && scheduledArrivalAfterMidnight) {
-            val fixedEta = eta.copy(estimatedArrivalUnix = eta.estimatedArrivalUnix?.plus(86400)) // estimatedArrival not fixed currently, but atm not being used for anything
-            fixedEtas += fixedEta
-
-            return@filter false
-        }
-
         if (tripScheduledArrivalIsInThePast) {
             return@filter false
         }
@@ -116,6 +108,14 @@ fun filterAndSortPatternArrivalsByCurrentAndFuture(etas: List<PatternRealtimeETA
         }
 
         if (tripHasObservedArrival) {
+            return@filter false
+        }
+
+        // Fix for past midnight estimatedArrivals represented as being in the day before
+        if (tripHasEstimatedArrival &&!estimatedArrivalAfterMidnight && scheduledArrivalAfterMidnight) {
+            val fixedEta = eta.copy(estimatedArrivalUnix = eta.estimatedArrivalUnix?.plus(86400)) // estimatedArrival not fixed currently, but atm not being used for anything
+            fixedEtas += fixedEta
+
             return@filter false
         }
 

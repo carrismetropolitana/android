@@ -1,6 +1,7 @@
 package pt.carrismetropolitana.mobile
 
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -184,6 +185,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 //        window.setBackgroundDrawable(BitmapDrawable())
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         requestLocationPermission(this)
         askNotificationPermission()
         FirebaseApp.initializeApp(this)

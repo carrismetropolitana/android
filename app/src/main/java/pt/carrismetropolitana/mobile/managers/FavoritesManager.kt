@@ -111,6 +111,18 @@ class FavoritesManager(private val favoriteDao: FavoriteDao) {
         }
     }
 
+    fun rewriteAllFavoritesForReorder(newFavorites: List<FavoriteItem>) {
+        coroutineScope.launch {
+            withContext(Dispatchers.IO) {
+                favoriteDao.deleteAll()
+                for (favorite in newFavorites) {
+                    favoriteDao.insert(favorite)
+                }
+            }
+            loadFavorites()
+        }
+    }
+
     fun wipeFavorites() {
         fcmUnsubscribeFromAllFavorites()
         coroutineScope.launch {

@@ -1,8 +1,11 @@
 package pt.carrismetropolitana.mobile.composables.components.favorites
 
+import android.view.HapticFeedbackConstants
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,13 +33,17 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,23 +55,35 @@ import pt.carrismetropolitana.mobile.services.favorites.FavoriteItem
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
 import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.composables.components.Pill
+import pt.carrismetropolitana.mobile.managers.FavoritesManager
 import pt.carrismetropolitana.mobile.ui.theme.CMYellow
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+suspend fun updateFavorites(favoritesManager: FavoritesManager, favorites: List<FavoriteItem>): List<FavoriteItem> {
+    println("updating favorites from ${favoritesManager.favorites.map { it.id }} to ${favorites.map { it.id }}")
+    favoritesManager.rewriteAllFavoritesForReorder(favorites)
+    return favoritesManager.favorites
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun FavoritesCustomization(
     navController: NavController,
     onCloseButtonClick: () -> Unit
 ) {
-    val favoritesManager = LocalFavoritesManager.current
+    val view = LocalView.current
 
-    val listState = rememberLazyListState()
-    var draggingItemIndex: Int? by remember {
-        mutableStateOf(null)
-    }
-    var draggingItemDistanceDelta by remember {
-        mutableFloatStateOf(0f)
+    val favoritesManager = LocalFavoritesManager.current
+    val userReorderedFavorites = remember { mutableStateOf(favoritesManager.favorites.toList()) }
+
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        userReorderedFavorites.value = userReorderedFavorites.value.toMutableList().apply {
+            add(to.index - 1, removeAt(from.index - 1))
+        }
+        updateFavorites(favoritesManager, userReorderedFavorites.value)
     }
 
     Scaffold(
@@ -80,35 +99,11 @@ fun FavoritesCustomization(
         }
     ) { paddingValues ->
         LazyColumn(
+            state = lazyListState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
-                .pointerInput(key1 = listState) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = { offset ->
-                            listState.layoutInfo.visibleItemsInfo
-                                .firstOrNull { item -> offset.y.toInt() in item.offset..(item.offset + item.size) }
-                                ?.also {
-                                    (it.contentType as? DraggableItem)?.let { draggableItem ->
-                                        draggingItemIndex = draggableItem.index
-                                    }
-                                }
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            draggingItemDistanceDelta += dragAmount.y
-                        },
-                        onDragEnd = {
-                            draggingItemIndex = null
-                            draggingItemDistanceDelta = 0f
-                        },
-                        onDragCancel = {
-                            draggingItemIndex = null
-                            draggingItemDistanceDelta = 0f
-                        },
-                    )
-                }
         ) {
             item {
                 Text(
@@ -123,23 +118,33 @@ fun FavoritesCustomization(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            itemsIndexed(
-                favoritesManager.favorites,
-                contentType = { index, _ -> DraggableItem(index) }
-            ) { index, item ->
-                val modifier = if (draggingItemIndex == index) {
-                    Modifier
-                        .zIndex(1f)
-                        .graphicsLayer {
-                            translationY = draggingItemDistanceDelta
+            items(userReorderedFavorites.value, { it.id }) {item ->
+                ReorderableItem(reorderableLazyListState, key = item.id) { isDragging ->
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val modifier = if (isDragging) {
+                        Modifier
+                            .zIndex(1f)
+                            .shadow(16.dp)
+                    } else {
+                        Modifier
+                    }
+                    Box(modifier = modifier) {
+                        Box(
+                            modifier = Modifier.longPressDraggableHandle (
+                                onDragStarted = {
+                                    view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                },
+                                onDragStopped = {
+                                    view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                },
+                                interactionSource = interactionSource,
+                            ).clearAndSetSemantics {  }
+                        ) {
+                            FavoriteItemCard(item, onClick = {
+                                navController.navigate("favorite_item_customization/${item.type.name}?favoriteId=${item.stopId ?: item.lineId}")
+                            })
                         }
-
-                } else { Modifier }
-
-                Box(modifier = modifier) {
-                    FavoriteItemCard(item, onClick = {
-                        navController.navigate("favorite_item_customization/${item.type.name}?favoriteId=${item.stopId ?: item.lineId}")
-                    })
+                    }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }

@@ -2,9 +2,12 @@ package pt.carrismetropolitana.mobile.composables.components.favorites
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,14 +25,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LocalFavoritesManager
 import pt.carrismetropolitana.mobile.LocalLinesManager
@@ -48,6 +59,14 @@ fun FavoritesCustomization(
 ) {
     val favoritesManager = LocalFavoritesManager.current
 
+    val listState = rememberLazyListState()
+    var draggingItemIndex: Int? by remember {
+        mutableStateOf(null)
+    }
+    var draggingItemDistanceDelta by remember {
+        mutableFloatStateOf(0f)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,6 +84,31 @@ fun FavoritesCustomization(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
+                .pointerInput(key1 = listState) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = { offset ->
+                            listState.layoutInfo.visibleItemsInfo
+                                .firstOrNull { item -> offset.y.toInt() in item.offset..(item.offset + item.size) }
+                                ?.also {
+                                    (it.contentType as? DraggableItem)?.let { draggableItem ->
+                                        draggingItemIndex = draggableItem.index
+                                    }
+                                }
+                        },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            draggingItemDistanceDelta += dragAmount.y
+                        },
+                        onDragEnd = {
+                            draggingItemIndex = null
+                            draggingItemDistanceDelta = 0f
+                        },
+                        onDragCancel = {
+                            draggingItemIndex = null
+                            draggingItemDistanceDelta = 0f
+                        },
+                    )
+                }
         ) {
             item {
                 Text(
@@ -79,10 +123,24 @@ fun FavoritesCustomization(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            items(favoritesManager.favorites) { item ->
-                FavoriteItemCard(item, onClick = {
-                    navController.navigate("favorite_item_customization/${item.type.name}?favoriteId=${item.stopId ?: item.lineId}")
-                })
+            itemsIndexed(
+                favoritesManager.favorites,
+                contentType = { index, _ -> DraggableItem(index) }
+            ) { index, item ->
+                val modifier = if (draggingItemIndex == index) {
+                    Modifier
+                        .zIndex(1f)
+                        .graphicsLayer {
+                            translationY = draggingItemDistanceDelta
+                        }
+
+                } else { Modifier }
+
+                Box(modifier = modifier) {
+                    FavoriteItemCard(item, onClick = {
+                        navController.navigate("favorite_item_customization/${item.type.name}?favoriteId=${item.stopId ?: item.lineId}")
+                    })
+                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -108,12 +166,13 @@ fun FavoritesCustomization(
             }
 
             item {
-                ComingSoonNewCardOptionButton("Notificação Inteligente") {
-                }
+                ComingSoonNewCardOptionButton("Notificação Inteligente") {}
             }
         }
     }
 }
+
+data class DraggableItem(val index: Int)
 
 @Composable
 fun FavoriteItemCard(item: FavoriteItem, onClick: () -> Unit) {

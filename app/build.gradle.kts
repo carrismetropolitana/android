@@ -106,7 +106,7 @@ dependencies {
 
     implementation("androidx.browser:browser:1.8.0")
 
-//    implementation("androidx.webkit:webkit:1.5.0")
+    implementation("androidx.webkit:webkit:1.9.0")
 
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)
@@ -117,4 +117,6 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    implementation("sh.calvin.reorderable:reorderable:2.3.3")
 }

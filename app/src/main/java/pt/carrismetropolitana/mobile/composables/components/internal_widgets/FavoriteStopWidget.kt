@@ -51,6 +51,7 @@ import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.composables.screens.stops.adjustTimeFormat
 import pt.carrismetropolitana.mobile.composables.screens.stops.filterAndSortStopArrivalsByCurrentAndFuture
 import pt.carrismetropolitana.mobile.composables.screens.stops.getRoundedMinuteDifferenceFromNow
+import pt.carrismetropolitana.mobile.composables.screens.stops.getTimeStringFromMinutes
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.Line
 import pt.carrismetropolitana.mobile.services.cmapi.Pattern
@@ -238,10 +239,10 @@ fun FavoriteStopPatternItem(
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    "${getRoundedMinuteDifferenceFromNow(nextArrival.estimatedArrivalUnix)} min",
+                    "${getTimeStringFromMinutes(getRoundedMinuteDifferenceFromNow(nextArrival.estimatedArrivalUnix))}",
                     color = SmoothGreen,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.width(60.dp)
+                    modifier = Modifier.width(70.dp)
                 )
             } else {
                 nextArrival.scheduledArrival?.let {

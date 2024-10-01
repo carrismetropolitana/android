@@ -10,6 +10,8 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import pt.carrismetropolitana.mobile.services.cmwordpressapi.News
 
 @Composable
@@ -25,6 +27,11 @@ fun NewsWebView(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
+
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                println("[WebView] Algorithmic Darkening is supported")
+                WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, true)
+            }
 
             webViewClient = object : WebViewClient() {
                 override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {

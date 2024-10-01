@@ -16,9 +16,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -34,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
@@ -77,7 +80,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
                 AnimatedVisibility(visible = !active) {
                     MediumTopAppBar(
                         title = {
-                            Text("Linhas")
+                            Text("Linhas", color = Color.Black, fontWeight = FontWeight.Bold)
                         },
                         colors = TopAppBarDefaults.mediumTopAppBarColors(
                             containerColor = Color("#FFDD01".toColorInt()),
@@ -87,6 +90,9 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
                     )
                 }
                 SearchBar(
+                    colors = SearchBarDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    ),
                     query = text,
                     onQueryChange = {
                         text = it
@@ -136,7 +142,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding())
                 .padding(bottom = parentPaddingValues.calculateBottomPadding()),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,

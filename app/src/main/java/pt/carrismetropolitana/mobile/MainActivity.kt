@@ -373,6 +373,7 @@ class MainActivity : ComponentActivity() {
                                         bottomNavbarVisible = true
                                     }
                                     StopsScreen(
+                                        parentPaddingValues = padding,
                                         onStopDetailsClick = { stopId ->
                                             navController.navigate(
                                                 Screens.StopDetails.route.replace(

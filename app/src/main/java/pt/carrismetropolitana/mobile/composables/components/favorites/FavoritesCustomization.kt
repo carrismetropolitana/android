@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -86,6 +88,10 @@ fun FavoritesCustomization(
         updateFavorites(favoritesManager, userReorderedFavorites.value)
     }
 
+    LaunchedEffect(favoritesManager.favorites) {
+        userReorderedFavorites.value = favoritesManager.favorites.toList()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -130,15 +136,17 @@ fun FavoritesCustomization(
                     }
                     Box(modifier = modifier) {
                         Box(
-                            modifier = Modifier.longPressDraggableHandle (
-                                onDragStarted = {
-                                    view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
-                                },
-                                onDragStopped = {
-                                    view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                                },
-                                interactionSource = interactionSource,
-                            ).clearAndSetSemantics {  }
+                            modifier = Modifier
+                                .longPressDraggableHandle(
+                                    onDragStarted = {
+                                        view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                    },
+                                    onDragStopped = {
+                                        view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                    },
+                                    interactionSource = interactionSource,
+                                )
+                                .clearAndSetSemantics { }
                         ) {
                             FavoriteItemCard(item, onClick = {
                                 navController.navigate("favorite_item_customization/${item.type.name}?favoriteId=${item.stopId ?: item.lineId}")

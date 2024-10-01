@@ -191,6 +191,7 @@ fun HomeScreen(parentPaddingValues: PaddingValues, navController: NavController,
                 }
                 Column(
                     modifier = Modifier
+                        .fillMaxSize()
                         .padding(horizontal = 12.dp)
                         .verticalScroll(rememberScrollState())
                         .padding(top = 18.dp)

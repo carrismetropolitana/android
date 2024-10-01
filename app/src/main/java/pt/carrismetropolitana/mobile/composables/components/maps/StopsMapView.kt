@@ -68,10 +68,6 @@ fun StopsMapView(
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle(context)
 
-    LaunchedEffect(cameraPosition) {
-        println("Camera position changed. New value: ${cameraPosition.value}")
-    }
-
     AndroidView(
         modifier = modifier,
         factory = {
@@ -143,8 +139,6 @@ fun StopsMapView(
             }
         },
         update = {
-            println("State read in map update changed. Camera position: ${cameraPosition.value}")
-
             it.getMapAsync { maplibreMap ->
                 maplibreMap.getStyle { style ->
                     val geoJsonSource = style.getSourceAs<GeoJsonSource>("stops-source")
@@ -156,8 +150,6 @@ fun StopsMapView(
                             userLocation!!.value = it
                         }
                     }
-
-//                    maplibreMap.cameraPosition = cameraPosition.value
 
                     if (
                         mapVisualStyle == MapVisualStyle.SATELLITE && style.getLayer("satellite-layer") != null

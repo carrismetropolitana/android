@@ -61,7 +61,8 @@ fun AlertItem(
                 Icon(
                     imageVector = ImageVector.vectorResource(id = getIconResourceForAlertEffect(alert.effect)),
                     contentDescription = null,
-                    tint = Color.White
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(

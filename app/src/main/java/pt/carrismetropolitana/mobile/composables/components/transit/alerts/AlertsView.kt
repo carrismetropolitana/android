@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -81,21 +82,23 @@ fun AlertsView(
                     fontSize = 20.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Boa viagem!",
+                Text(
+                    stringResource(R.string.welcome_screen_boa_viagem),
                     fontSize = 16.sp
                 )
             }
         } else {
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = 12.dp)
-        ) {
-            items(filteredAlertEntities) { alertEntity ->
-                AlertItem(alert = alertEntity.alert, modifier = Modifier.padding(paddingValues))
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filteredAlertEntities) { alertEntity ->
+                    AlertItem(alert = alertEntity.alert, modifier = Modifier.padding(paddingValues))
+                }
             }
         }
-            }
     }
 }
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,6 +64,7 @@ import pt.carrismetropolitana.mobile.composables.components.maps.MapVisualStyle
 import pt.carrismetropolitana.mobile.composables.components.maps.StopsMapView
 import pt.carrismetropolitana.mobile.composables.components.maps.overlays.MapFloatingButton
 import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsList
+import pt.carrismetropolitana.mobile.helpers.checkLocationPermission
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.RealtimeETA
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
@@ -73,10 +76,13 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopsScreen(
+    parentPaddingValues: PaddingValues,
     onStopDetailsClick: (stopId: String) -> Unit,
     onVehicleRealtimeTrackingClick: (vehicleId: String) -> Unit,
     onLineDetailsClick: (lineId: String) -> Unit
 ) {
+    val context = LocalContext.current
+
     val stopsManager = LocalStopsManager.current
     val vehiclesManager = LocalVehiclesManager.current
 
@@ -112,7 +118,7 @@ fun StopsScreen(
         }
     }
 
-//    var cameraPosition = rememberSaveable { mutableStateOf(CameraPosition.Builder().target(LatLng(38.7, -9.0)).zoom(8.9).build()) }
+    var cameraPosition = remember { mutableStateOf(CameraPosition.Builder().target(LatLng(38.7, -9.0)).zoom(8.9).build()) }
     val userLocation = rememberSaveable { mutableStateOf(Location(null)) }
 
     Column(
@@ -123,7 +129,7 @@ fun StopsScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             StopsMapView(
                 stops = stopsManager.data.collectAsState().value,
-//                cameraPosition = cameraPosition,
+                cameraPosition = cameraPosition,
                 userLocation = userLocation,
                 mapVisualStyle = mapVisualStyle,
                 onStopClick = { stopId ->
@@ -188,15 +194,22 @@ fun StopsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(end = 12.dp)
-                    .padding(bottom = 130.dp), // TODO: use paddingValues to account for bottom safe area
+                    .padding(bottom = parentPaddingValues.calculateBottomPadding() + 30.dp), // TODO: use paddingValues to account for bottom safe area
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.End
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MapFloatingButton(iconResourceId = R.drawable.phosphoricons_navigation_arrow_fill) {
-//                        val userLocationLatLng = LatLng(userLocation.value.latitude, userLocation.value.longitude)
-//                        println("Setting camera position to ${userLocationLatLng.latitude}, ${userLocationLatLng.longitude}")
-//                        cameraPosition.value = CameraPosition.Builder().target(userLocationLatLng).zoom(10.0).build() // STOPSHIP: solve state stuff
+                    val navigationArrowIconResource = if (checkLocationPermission(context)) { R.drawable.phosphoricons_navigation_arrow_fill } else { R.drawable.no_location_icon }
+                    MapFloatingButton(iconResourceId = navigationArrowIconResource, disabled = !checkLocationPermission(context)) {
+                        if (checkLocationPermission(context)) {
+                            val userLocationLatLng =
+                                LatLng(userLocation.value.latitude, userLocation.value.longitude)
+                            println("Setting camera position to ${userLocationLatLng.latitude}, ${userLocationLatLng.longitude}")
+                            cameraPosition.value = CameraPosition.Builder().target(userLocationLatLng).zoom(8.0).build() // lil hacky way for it to detect the change
+                            cameraPosition.value =
+                                CameraPosition.Builder().target(userLocationLatLng).zoom(10.0)
+                                    .build()
+                        }
                     }
                     MapFloatingButton(iconResourceId = R.drawable.phosphoricons_map_trifold) {
                         mapVisualStyle = if (mapVisualStyle == MapVisualStyle.MAP) {
@@ -425,6 +438,21 @@ fun getRoundedMinuteDifferenceFromNow(refTimestamp: Int): Int {
 
     println("[getRoundedMinuteDifferenceFromNow] — Difference in minutes: $differenceInMinutes")
     return kotlin.math.abs(differenceInMinutes)
+}
+
+fun getTimeStringFromMinutes(minutes: Int): String {
+    if (minutes < 2) {
+        return "A chegar"
+    }
+
+    val hours = minutes / 60
+    val minutes = minutes % 60
+
+    if (hours == 0) {
+        return "${minutes} min"
+    }
+
+    return "${hours}h ${minutes}m"
 }
 
 @Composable

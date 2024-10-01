@@ -6,7 +6,9 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -16,6 +18,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.location.LocationComponentActivationOptions
 import org.maplibre.android.location.LocationComponentOptions
@@ -55,14 +58,19 @@ enum class MapVisualStyle {
 fun StopsMapView(
     modifier: Modifier = Modifier,
     stops: List<Stop>,
-//    cameraPosition: MutableState<CameraPosition> = mutableStateOf(CameraPosition.Builder().target(LatLng(38.7, -9.0)).zoom(8.9).build()),
+    cameraPosition: MutableState<CameraPosition> = mutableStateOf(CameraPosition.Builder().target(LatLng(38.7, -9.0)).zoom(8.9).build()),
     userLocation: MutableState<Location>? = null,
     mapVisualStyle: MapVisualStyle = MapVisualStyle.MAP,
     onMapReady: (MapLibreMap) -> Unit = {},
-    onStopClick: (stopId: String) -> Unit = {}
+    onStopClick: (stopId: String) -> Unit = {},
+    flyToUserLocation: MutableState<Boolean> = mutableStateOf(false),
 ) {
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle(context)
+
+    LaunchedEffect(cameraPosition) {
+        println("Camera position changed. New value: ${cameraPosition.value}")
+    }
 
     AndroidView(
         modifier = modifier,
@@ -76,6 +84,8 @@ fun StopsMapView(
                         // Hide attributions
                         map.uiSettings.isAttributionEnabled = false
                         map.uiSettings.isLogoEnabled = false
+                        map.uiSettings.isCompassEnabled = false
+
                         // Set the map view center
                         map.cameraPosition = CameraPosition.Builder()
                             .target(LatLng(38.7, -9.0))
@@ -133,10 +143,35 @@ fun StopsMapView(
             }
         },
         update = {
+            println("State read in map update changed. Camera position: ${cameraPosition.value}")
+
             it.getMapAsync { maplibreMap ->
                 maplibreMap.getStyle { style ->
                     val geoJsonSource = style.getSourceAs<GeoJsonSource>("stops-source")
                     geoJsonSource?.setGeoJson(createGeoJsonFromStops(stops))
+
+
+                    if (checkLocationPermission(context)) {
+                        maplibreMap.locationComponent.lastKnownLocation?.let {
+                            userLocation!!.value = it
+                        }
+                    }
+
+//                    maplibreMap.cameraPosition = cameraPosition.value
+
+                    if (
+                        mapVisualStyle == MapVisualStyle.SATELLITE && style.getLayer("satellite-layer") != null
+                        || mapVisualStyle == MapVisualStyle.MAP && style.getLayer("satellite-layer") == null
+                    ) {
+                        if (maplibreMap.cameraPosition != cameraPosition.value) {
+                            maplibreMap.animateCamera(
+                                CameraUpdateFactory
+                                    .newCameraPosition(
+                                        cameraPosition.value
+                                    )
+                            )
+                        }
+                    }
 
                     setVisualStyle(mapVisualStyle, style)
                 }

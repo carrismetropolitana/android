@@ -139,6 +139,7 @@ fun StopsMapView(
             }
         },
         update = {
+            val currentCameraPosition = cameraPosition.value // the snapshot value has to be read outside on the update block for it to observe the change, calling it inside a callback will not work
             it.getMapAsync { maplibreMap ->
                 maplibreMap.getStyle { style ->
                     val geoJsonSource = style.getSourceAs<GeoJsonSource>("stops-source")
@@ -155,7 +156,7 @@ fun StopsMapView(
                         mapVisualStyle == MapVisualStyle.SATELLITE && style.getLayer("satellite-layer") != null
                         || mapVisualStyle == MapVisualStyle.MAP && style.getLayer("satellite-layer") == null
                     ) {
-                        if (maplibreMap.cameraPosition != cameraPosition.value) {
+                        if (maplibreMap.cameraPosition != currentCameraPosition) {
                             maplibreMap.animateCamera(
                                 CameraUpdateFactory
                                     .newCameraPosition(

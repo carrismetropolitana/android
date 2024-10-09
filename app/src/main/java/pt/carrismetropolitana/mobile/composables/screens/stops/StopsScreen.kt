@@ -273,7 +273,7 @@ fun filterAndSortStopArrivalsByCurrentAndFuture(etas: List<RealtimeETA>): List<R
         val tripHasEstimatedArrival = eta.estimatedArrivalUnix != null
         val tripEstimatedArrivalIsInThePast =
             (eta.estimatedArrivalUnix ?: 0) <= System.currentTimeMillis() / 1000
-        val tripEstimatedArrivalIsInTheFuture = (eta.estimatedArrivalUnix ?: 0) <= System.currentTimeMillis() / 1000
+        val tripEstimatedArrivalIsInTheFuture = (eta.estimatedArrivalUnix ?: 0) >= System.currentTimeMillis() / 1000
 
         val estimatedArrivalAfterMidnight = tripHasEstimatedArrival && eta.estimatedArrival!!.substring(0, 2).toInt() > 23
         val scheduledArrivalAfterMidnight = tripHasScheduledArrival && eta.scheduledArrival!!.substring(0, 2).toInt() > 23

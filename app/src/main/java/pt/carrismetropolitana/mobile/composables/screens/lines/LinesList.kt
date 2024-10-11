@@ -22,8 +22,10 @@ import pt.carrismetropolitana.mobile.composables.components.Pill
 import pt.carrismetropolitana.mobile.services.cmapi.Line
 
 @Composable
-fun LinesList(lines: List<Line>, onLineClick: (lineId: String) -> Unit) {
-    LazyColumn {
+fun LinesList(modifier: Modifier = Modifier, lines: List<Line>, onLineClick: (lineId: String) -> Unit) {
+    LazyColumn(
+        modifier = modifier
+    ) {
         itemsIndexed(
             items = lines,
         ) {index, line ->

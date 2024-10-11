@@ -64,6 +64,7 @@ fun StopsMapView(
     onMapReady: (MapLibreMap) -> Unit = {},
     onStopClick: (stopId: String) -> Unit = {},
     flyToUserLocation: MutableState<Boolean> = mutableStateOf(false),
+    showPopupOnStopSelect: Boolean = false
 ) {
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle(context)

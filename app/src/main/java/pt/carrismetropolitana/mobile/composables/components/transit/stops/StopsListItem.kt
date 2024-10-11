@@ -34,11 +34,13 @@ import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 @Composable
 fun StopsListItem(
     stop: Stop,
-    onStopClick: (stopId: String) -> Unit
+    onStopClick: (stopId: String) -> Unit,
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     Box(
         modifier = Modifier
             .height(90.dp)
+            .padding(paddingValues)
             .clip(RoundedCornerShape(15.dp))
             .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(15.dp))
             .clickable { onStopClick(stop.id) }

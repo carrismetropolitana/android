@@ -1,6 +1,7 @@
 package pt.carrismetropolitana.mobile.composables.screens.lines
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,18 +37,63 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+import pt.carrismetropolitana.mobile.FIRST_TIME_LAUNCH
 import pt.carrismetropolitana.mobile.LocalLinesManager
+import pt.carrismetropolitana.mobile.dataStore
 import pt.carrismetropolitana.mobile.services.cmapi.Line
 import pt.carrismetropolitana.mobile.utils.normalizedForSearch
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "linesSearch")
+val LINE_SEARCH_HISTORY = stringSetPreferencesKey("searchHistory")
+
+fun getLineSearchHistory(context: Context): Flow<Set<String>> {
+    return context.dataStore.data.map { preferences ->
+        preferences[LINE_SEARCH_HISTORY] ?: emptySet()
+    }
+}
+
+fun setLineSearchHistory(context: Context, searchHistory: Set<String>) {
+    runBlocking {
+        context.dataStore.edit { preferences ->
+            preferences[LINE_SEARCH_HISTORY] = searchHistory
+        }
+    }
+}
+
+// limited to 5 lines
+fun addLineToSearchHistory(context: Context, lineId: String) {
+    runBlocking {
+        context.dataStore.edit { preferences ->
+            val searchHistory = preferences[LINE_SEARCH_HISTORY] ?: emptySet()
+            if (searchHistory.size == 5) {
+                preferences[LINE_SEARCH_HISTORY] = (searchHistory.drop(1) + lineId).toSet()
+            } else {
+                preferences[LINE_SEARCH_HISTORY] = searchHistory + lineId
+            }
+        }
+    }
+}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues) {
+    val context = LocalContext.current
     val linesManager = LocalLinesManager.current
 
     var text by rememberSaveable {
@@ -61,6 +107,7 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     var searchFilteredLines by remember { mutableStateOf(listOf<Line>()) }
+    val searchHistory = getLineSearchHistory(context).collectAsState(initial = emptySet())
 
     LaunchedEffect(text) {
         if (text.isNotEmpty()) {
@@ -132,7 +179,21 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
                         .padding(top = if (active) parentPaddingValues.calculateTopPadding() else 0.dp),
                     windowInsets = WindowInsets(0, 0, 0, 0)
                 ) {
-                    LinesList(lines = searchFilteredLines, onLineClick = { lineId -> navController.navigate("line_details/$lineId") })
+                    if (searchFilteredLines.isEmpty()) {
+                            LinesList(
+                                lines = linesManager.data.collectAsState().value.filter { line ->
+                                    searchHistory.value.contains(line.id)
+                                },
+                                onLineClick = { lineId ->
+                                    navController.navigate("line_details/$lineId")
+                                    addLineToSearchHistory(context = context, lineId = lineId)
+                                }
+                            )
+                    } else {
+                        LinesList(
+                            lines = searchFilteredLines,
+                            onLineClick = { lineId -> navController.navigate("line_details/$lineId") })
+                    }
                 }
             }
         },
@@ -153,7 +214,13 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
                     modifier = Modifier.padding(16.dp)
                 )
             } else {
-                LinesList(lines = lines, onLineClick = { lineId -> navController.navigate("line_details/$lineId") })
+                LinesList(
+                    lines = lines,
+                    onLineClick = { lineId ->
+                        navController.navigate("line_details/$lineId")
+                        addLineToSearchHistory(context = context, lineId = lineId)
+                    }
+                )
             }
         }
     }

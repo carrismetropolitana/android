@@ -40,7 +40,6 @@ import pt.carrismetropolitana.mobile.services.cmapi.Stop
 import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SelectFavoriteStopView(
     navController: NavController
@@ -125,8 +124,9 @@ fun SelectFavoriteStopView(
                 }
             }
         }
-    ) {
+    ) { paddingValues ->
         StopsList(
+            modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
             stops = stopsManager.data.collectAsState().value,
             onStopClick = {
                 navController.previousBackStackEntry?.savedStateHandle?.set(

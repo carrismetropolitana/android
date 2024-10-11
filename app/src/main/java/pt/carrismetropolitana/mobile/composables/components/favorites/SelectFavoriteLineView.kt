@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
@@ -35,7 +36,6 @@ import pt.carrismetropolitana.mobile.services.cmapi.Line
 import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SelectFavoriteLineView(
     navController: NavController
@@ -111,6 +111,7 @@ fun SelectFavoriteLineView(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = if (active) 0.dp else 12.dp)
                         .padding(bottom = if (active) 0.dp else 12.dp),
                     windowInsets = WindowInsets(0, 0, 0, 0)
@@ -125,8 +126,9 @@ fun SelectFavoriteLineView(
                 }
             }
         }
-    ) {
+    ) { paddingValues ->
         LinesList(
+            modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
             lines = linesManager.data.collectAsState().value,
             onLineClick = {
                 navController.previousBackStackEntry?.savedStateHandle?.set(

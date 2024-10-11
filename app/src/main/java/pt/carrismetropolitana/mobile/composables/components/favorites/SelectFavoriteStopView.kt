@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import pt.carrismetropolitana.mobile.LocalStopsManager
+import pt.carrismetropolitana.mobile.composables.components.maps.StopsMapView
 import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsList
 import pt.carrismetropolitana.mobile.composables.components.transit.stops.StopsListItem
 import pt.carrismetropolitana.mobile.composables.screens.lines.LinesList
@@ -73,9 +76,9 @@ fun SelectFavoriteStopView(
                         text = it
                         val normalizedText = text.normalizedForSearch()
                         searchFilteredStops = stopsManager.data.value.filter {stop ->
-                            stop.name.normalizedForSearch().contains(normalizedText, true)
-                                    || stop.id.normalizedForSearch().contains(normalizedText, true)
-                                    || stop.ttsName?.normalizedForSearch()?.contains(normalizedText, true) ?: false
+                            stop.nameNormalized.contains(normalizedText, true)
+                                    || stop.id.contains(normalizedText, true)
+                                    || stop.ttsNameNormalized?.contains(normalizedText, true) ?: false
                         }
                     },
                     onSearch = {
@@ -107,6 +110,7 @@ fun SelectFavoriteStopView(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = if (active) 0.dp else 12.dp)
                         .padding(bottom = if (active) 0.dp else 12.dp),
                     windowInsets = WindowInsets(0, 0, 0, 0)
@@ -132,5 +136,11 @@ fun SelectFavoriteStopView(
                 navController.popBackStack()
             }
         )
+//        {
+//            StopsMapView(
+//                modifier = Modifier.height(500.dp),
+//                stops = stopsManager.data.collectAsState().value
+//            )
+//        }
     }
 }

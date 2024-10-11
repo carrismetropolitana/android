@@ -2,6 +2,7 @@ package pt.carrismetropolitana.mobile.services.cmapi
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 
 @Serializable
 enum class Facility {
@@ -27,7 +28,9 @@ data class Line(
     val patterns: List<String>,
     val municipalities: List<String>,
     val localities: List<String?>,
-    val facilities: List<Facility>
+    val facilities: List<Facility>,
+
+    val longNameNormalized: String = longName.normalizedForSearch()
 )
 
 @Serializable
@@ -68,7 +71,10 @@ data class Stop(
     val facilities: List<Facility>,
     val lines: List<String>? = null,
     val routes: List<String>? = null,
-    val patterns: List<String>? = null
+    val patterns: List<String>? = null,
+
+    val nameNormalized: String = name.normalizedForSearch(),
+    val ttsNameNormalized: String? = ttsName?.normalizedForSearch()
 )
 
 @Serializable

@@ -56,8 +56,8 @@ fun SelectFavoriteLineView(
         if (text.isNotEmpty()) {
             val normalizedText = text.normalizedForSearch()
             searchFilteredLines = linesManager.data.value.filter {
-                it.shortName.normalizedForSearch().contains(normalizedText, true)
-                        || it.longName.normalizedForSearch().contains(normalizedText, true)
+                it.shortName.contains(normalizedText, true)
+                        || it.longNameNormalized.contains(normalizedText, true)
             }
         } else {
             searchFilteredLines = listOf()

@@ -109,9 +109,9 @@ fun StopsScreen(
         if (text.isNotEmpty()) {
             val normalizedText = text.normalizedForSearch()
             searchFilteredStops = stopsManager.data.value.filter {
-                it.name.normalizedForSearch().contains(normalizedText, true)
-                        || it.id.normalizedForSearch().contains(normalizedText, true)
-                        || it.ttsName?.normalizedForSearch()?.contains(normalizedText, true) ?: false
+                it.nameNormalized.contains(normalizedText, true)
+                        || it.id.contains(normalizedText, true)
+                        || it.ttsNameNormalized?.contains(normalizedText, true) ?: false
             }
         } else {
             searchFilteredStops = listOf()

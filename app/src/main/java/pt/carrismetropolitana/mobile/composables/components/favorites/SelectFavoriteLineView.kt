@@ -116,13 +116,18 @@ fun SelectFavoriteLineView(
                         .padding(bottom = if (active) 0.dp else 12.dp),
                     windowInsets = WindowInsets(0, 0, 0, 0)
                 ) {
-                    LinesList(lines = searchFilteredLines, onLineClick = { lineId ->
-                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "selectedFavoriteRootItemId",
-                            lineId
-                        )
-                        navController.popBackStack()
-                    })
+                    LinesList(
+                        lines = linesManager.data.collectAsState().value,
+                        isSearch = true,
+                        searchFilter = text,
+                        onLineClick = { lineId ->
+                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                "selectedFavoriteRootItemId",
+                                lineId
+                            )
+                            navController.popBackStack()
+                        }
+                    )
                 }
             }
         }

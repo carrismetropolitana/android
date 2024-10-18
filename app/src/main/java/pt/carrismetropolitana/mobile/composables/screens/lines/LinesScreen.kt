@@ -58,37 +58,6 @@ import pt.carrismetropolitana.mobile.dataStore
 import pt.carrismetropolitana.mobile.services.cmapi.Line
 import pt.carrismetropolitana.mobile.utils.normalizedForSearch
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "linesSearch")
-val LINE_SEARCH_HISTORY = stringSetPreferencesKey("searchHistory")
-
-fun getLineSearchHistory(context: Context): Flow<Set<String>> {
-    return context.dataStore.data.map { preferences ->
-        preferences[LINE_SEARCH_HISTORY] ?: emptySet()
-    }
-}
-
-fun setLineSearchHistory(context: Context, searchHistory: Set<String>) {
-    runBlocking {
-        context.dataStore.edit { preferences ->
-            preferences[LINE_SEARCH_HISTORY] = searchHistory
-        }
-    }
-}
-
-// limited to 5 lines
-fun addLineToSearchHistory(context: Context, lineId: String) {
-    runBlocking {
-        context.dataStore.edit { preferences ->
-            val searchHistory = preferences[LINE_SEARCH_HISTORY] ?: emptySet()
-            if (searchHistory.size == 5) {
-                preferences[LINE_SEARCH_HISTORY] = (searchHistory.drop(1) + lineId).toSet()
-            } else {
-                preferences[LINE_SEARCH_HISTORY] = searchHistory + lineId
-            }
-        }
-    }
-}
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,21 +74,6 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
     }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-
-    var searchFilteredLines by remember { mutableStateOf(listOf<Line>()) }
-    val searchHistory = getLineSearchHistory(context).collectAsState(initial = emptySet())
-
-    LaunchedEffect(text) {
-        if (text.isNotEmpty()) {
-            val normalizedText = text.normalizedForSearch()
-            searchFilteredLines = linesManager.data.value.filter {
-                it.shortName.contains(normalizedText, true)
-                        || it.longNameNormalized.contains(normalizedText, true)
-            }
-        } else {
-            searchFilteredLines = listOf()
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -179,21 +133,12 @@ fun LinesScreen(navController: NavController, parentPaddingValues: PaddingValues
                         .padding(top = if (active) parentPaddingValues.calculateTopPadding() else 0.dp),
                     windowInsets = WindowInsets(0, 0, 0, 0)
                 ) {
-                    if (searchFilteredLines.isEmpty()) {
-                            LinesList(
-                                lines = linesManager.data.collectAsState().value.filter { line ->
-                                    searchHistory.value.contains(line.id)
-                                },
-                                onLineClick = { lineId ->
-                                    navController.navigate("line_details/$lineId")
-                                    addLineToSearchHistory(context = context, lineId = lineId)
-                                }
-                            )
-                    } else {
-                        LinesList(
-                            lines = searchFilteredLines,
-                            onLineClick = { lineId -> navController.navigate("line_details/$lineId") })
-                    }
+                    LinesList(
+                        lines = linesManager.data.collectAsState().value,
+                        isSearch = true,
+                        searchFilter = text,
+                        onLineClick = { lineId -> navController.navigate("line_details/$lineId") }
+                    )
                 }
             }
         },

@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,6 +61,8 @@ import pt.carrismetropolitana.mobile.composables.screens.lines.SquareButton
 import pt.carrismetropolitana.mobile.services.cmapi.CMAPI
 import pt.carrismetropolitana.mobile.services.cmapi.Pattern
 import pt.carrismetropolitana.mobile.services.favorites.FavoriteType
+import pt.carrismetropolitana.mobile.services.imlapi.IMLAPI
+import pt.carrismetropolitana.mobile.services.imlapi.IMLPicture
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,14 +83,22 @@ fun AboutStopView(
 
     var alertsCountForStop by remember { mutableIntStateOf(0) }
 
+//    var stopPictures by remember { mutableStateOf(listOf<IMLPicture>()) }
+
     LaunchedEffect(Unit) {
         if (stop == null) return@LaunchedEffect
 
         alertsCountForStop = filterAlertEntitiesForInformedEntity(alertsManager.data.value, AlertsFilterForInformedEntities.STOP, stopId).count() // TODO: this is being done twice
 
+//        val imlStop = IMLAPI.shared.getStopByOperatorId(stopId = stopId)
+//        imlStop?.let {
+//            stopPictures = IMLAPI.shared.getStopPictures(stopId = imlStop.id)
+//        }
+
+
         for (patternId in stop.patterns!!) {
             val pattern = CMAPI.shared.getPattern(patternId) ?: continue // elvis operator :)
-            patternsFromStop += pattern
+            patternsFromStop += pattern // TODO: don't append, show loading state and when patterns are loaded, show them all
         }
     }
 

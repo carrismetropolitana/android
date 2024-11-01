@@ -28,6 +28,8 @@ import pt.carrismetropolitana.mobile.R
 import pt.carrismetropolitana.mobile.services.cmapi.Shape
 import pt.carrismetropolitana.mobile.services.cmapi.Stop
 import pt.carrismetropolitana.mobile.services.cmapi.Vehicle
+import pt.carrismetropolitana.mobile.utils.isHalloweenPeriod
+import java.time.LocalDate
 
 @Composable
 fun PatternMapView(
@@ -59,14 +61,24 @@ fun PatternMapView(
                             map.uiSettings.isRotateGesturesEnabled = false
                         }
 
-                        ResourcesCompat.getDrawable(
+                        val now = LocalDate.now()
+
+                        val cmBusDrawable = if (now.isHalloweenPeriod) {
+                            ResourcesCompat.getDrawable(
+                                context.resources,
+                                R.drawable.cm_pumpkin_long_bus,
+                                null
+                            )
+                        } else null ?: ResourcesCompat.getDrawable(
                             context.resources,
                             R.drawable.cm_bus_regular,
                             null
-                        )?.let { drawable ->
+                        )
+
+                        cmBusDrawable?.let {
                             style.addImage(
                                 "cm-bus-regular",
-                                drawable
+                                it
                             )
                         }
 

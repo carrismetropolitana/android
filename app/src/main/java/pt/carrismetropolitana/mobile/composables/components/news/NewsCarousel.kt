@@ -38,7 +38,7 @@ suspend fun generateCarouselItems(news: List<News>): List<CarouselItem> {
             id = it.id.toString(),
             imageUrl = it.featuredMedia.let { mediaId ->
                 val media = CMWPAPI.shared.getMedia(mediaId)
-                media?.guid?.rendered ?: ""
+                media?.sourceUrl ?: ""
             }
         )
     }

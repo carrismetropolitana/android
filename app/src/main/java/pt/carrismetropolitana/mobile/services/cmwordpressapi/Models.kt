@@ -22,6 +22,7 @@ data class News(
 data class Media(
     val id: Int,
     val guid: HasRenderedValue,
+    @SerialName("source_url") val sourceUrl: String,
 )
 
 @Serializable

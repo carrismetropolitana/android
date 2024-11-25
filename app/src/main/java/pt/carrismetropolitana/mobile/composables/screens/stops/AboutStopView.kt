@@ -83,7 +83,7 @@ fun AboutStopView(
 
     var alertsCountForStop by remember { mutableIntStateOf(0) }
 
-//    var stopPictures by remember { mutableStateOf(listOf<IMLPicture>()) }
+    var stopPictures by remember { mutableStateOf(listOf<IMLPicture>()) }
 
     LaunchedEffect(Unit) {
         if (stop == null) return@LaunchedEffect

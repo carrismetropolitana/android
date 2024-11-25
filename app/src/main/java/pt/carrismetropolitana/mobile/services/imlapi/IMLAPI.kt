@@ -3,12 +3,11 @@ package pt.carrismetropolitana.mobile.services.imlapi
 import kotlinx.serialization.SerializationException
 
 class IMLAPI {
-    val cmOperatorId = 1
     companion object {
         val shared = IMLAPI()
     }
 
-    suspend fun getStopByOperatorId(operatorId: Int = cmOperatorId, stopId: String): IMLStop? {
+    suspend fun getStopByOperatorId(operatorId: Int = 1, stopId: String): IMLStop? {
         return try {
             IMLAPINetworkService.apiService.getStopByOperatorId(operatorId, stopId)
         } catch (e: Exception) {

@@ -14,14 +14,16 @@ interface CMWebAPIService {
 }
 
 object CMWebAPINetworkService {
-    private const val BASE_URL = "https://www.carrismetropolitana.pt/api/app-android/"
+    private const val BASE_URL = "https://www.cmet.pt/api/app-android/"
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(
-            Json {
-                ignoreUnknownKeys = true
-            }.asConverterFactory("application/json; charset=utf-8".toMediaType())
+            json.asConverterFactory("application/json; charset=utf-8".toMediaType())
         )
         .build()
 

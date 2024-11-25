@@ -17,14 +17,16 @@ interface CMWPAPIService {
 }
 
 object CMWPAPINetworkService {
-    private const val BASE_URL = "https://carrismetropolitana.pt/wp-json/wp/v2/"
+    private const val BASE_URL = "https://backoffice.carrismetropolitana.pt/wp-json/wp/v2/"
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(
-            Json {
-                ignoreUnknownKeys = true
-            }.asConverterFactory("application/json; charset=utf-8".toMediaType())
+            json.asConverterFactory("application/json; charset=utf-8".toMediaType())
         )
         .build()
 

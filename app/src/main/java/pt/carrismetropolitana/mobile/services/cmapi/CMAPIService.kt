@@ -46,12 +46,14 @@ interface CMAPIService {
 object CMAPINetworkService {
     private const val BASE_URL = "https://api.carrismetropolitana.pt/"
 
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
+
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(
-            Json {
-                ignoreUnknownKeys = true
-            }.asConverterFactory("application/json; charset=utf-8".toMediaType())
+            json.asConverterFactory("application/json; charset=utf-8".toMediaType())
         )
         .build()
 

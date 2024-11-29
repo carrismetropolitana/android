@@ -178,7 +178,7 @@ fun LineDetailsView(
                     IconButton(onClick = {
                         val sendIntent: Intent = Intent().apply {
                             action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, "https://beta.carrismetropolitana.pt/lines/${lineId}")
+                            putExtra(Intent.EXTRA_TEXT, "https://carrismetropolitana.pt/lines/${lineId}")
                             putExtra(Intent.EXTRA_TITLE, "Linha ${lineId} — ${line?.longName ?: ""}")
                             type = "text/plain"
                             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION

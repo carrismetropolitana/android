@@ -117,7 +117,7 @@ fun AboutStopView(
                     IconButton(onClick = {
                         val sendIntent: Intent = Intent().apply {
                             action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, "https://beta.carrismetropolitana.pt/stops/${stopId}")
+                            putExtra(Intent.EXTRA_TEXT, "https://carrismetropolitana.pt/stops/${stopId}")
                             putExtra(Intent.EXTRA_TITLE, "Paragem ${stopId} — ${stop?.name ?: ""}")
                             type = "text/plain"
                             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION

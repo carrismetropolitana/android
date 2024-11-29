@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import pt.carrismetropolitana.mobile.composables.components.common.WebView
+import pt.carrismetropolitana.mobile.composables.screens.home.getCurrentLocale
 import pt.carrismetropolitana.mobile.services.cmapi.ENCM
 import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 
@@ -39,6 +40,8 @@ import pt.carrismetropolitana.mobile.ui.theme.SmoothGreen
 fun ENCMView(
     navController: NavController
 ) {
+    val context = LocalContext.current
+
     val encms = listOf<ENCM>(
         ENCM(
             id = "1",
@@ -87,7 +90,7 @@ fun ENCMView(
             )
         }
     ) { paddingValues ->
-        WebView(url = "https://alpha.carrismetropolitana.pt/stores?origin=app", modifier = Modifier.padding(paddingValues))
+        WebView(url = "https://cmet.pt/app-android/stores?locale=${getCurrentLocale(context)}", modifier = Modifier.padding(paddingValues))
     }
 
 }

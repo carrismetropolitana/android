@@ -106,7 +106,7 @@ dependencies {
 
     implementation("androidx.browser:browser:1.8.0")
 
-    implementation("androidx.webkit:webkit:1.9.0")
+    implementation("androidx.webkit:webkit:1.13.0")
 
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)

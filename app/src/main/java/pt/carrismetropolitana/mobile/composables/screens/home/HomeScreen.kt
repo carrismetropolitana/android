@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,9 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +60,7 @@ import pt.carrismetropolitana.mobile.composables.components.favorites.FavoritesC
 import pt.carrismetropolitana.mobile.composables.components.internal_widgets.FavoriteLineWidget
 import pt.carrismetropolitana.mobile.composables.components.internal_widgets.FavoriteStopWidget
 import pt.carrismetropolitana.mobile.composables.components.startup.messages.currentBuildInBuildInterval
+import pt.carrismetropolitana.mobile.composables.screens.lines.SquareButton
 import pt.carrismetropolitana.mobile.services.cmwebapi.CMWebAPI
 import pt.carrismetropolitana.mobile.services.cmwebapi.PresentationType
 import pt.carrismetropolitana.mobile.services.cmwebapi.StartupMessage
@@ -139,24 +144,36 @@ fun HomeScreen(parentPaddingValues: PaddingValues, navController: NavController,
 
     Scaffold(
         topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(
-                        CMYellow
-                    ),
-                contentAlignment = Alignment.BottomStart
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.cm_logo_white),
-                    contentDescription = "Logo Carris Metropolitana",
+                Box(
                     modifier = Modifier
-                        .padding(bottom = 10.dp)
-                        .padding(start = 10.dp)
-                        .height(60.dp)
-                )
-            }
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .background(
+                            CMYellow
+                        ),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth().padding(start = 6.dp, end = 16.dp)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.cm_logo_white),
+                            contentDescription = "Logo Carris Metropolitana",
+                            modifier = Modifier
+                                .padding(bottom = 10.dp)
+                                .padding(start = 10.dp)
+                                .height(50.dp)
+                        )
+
+                        SquareButton(
+                            icon = ImageVector.vectorResource(R.drawable.phosphoricons_warning),
+                            iconTint = isSystemInDarkTheme().let { if (it) Color.White else Color.Black },
+                            iconContentDescription = "Alerts",
+                            size = 50,
+                            action = {
+                                navController.navigate(Screens.AlertsList.route)
+                            }
+                        )
+                    }
+                }
         }
     ) { paddingValues ->
         Column(

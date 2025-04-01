@@ -49,7 +49,7 @@ import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 
 @Composable
 fun MoreScreen(navController: NavController, paddingValues: PaddingValues, context: Context) {
-    var news by remember { mutableStateOf(emptyList<News>()) }
+    var news by rememberSaveable { mutableStateOf(emptyList<News>()) }
 
     LaunchedEffect(Unit) {
         news = CMWPAPI.shared.getNews()

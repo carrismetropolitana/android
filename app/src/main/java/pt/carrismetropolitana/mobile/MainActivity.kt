@@ -59,6 +59,7 @@ import pt.carrismetropolitana.mobile.composables.components.transit.alerts.Alert
 import pt.carrismetropolitana.mobile.composables.components.transit.alerts.AlertsView
 import pt.carrismetropolitana.mobile.composables.components.transit.vehicles.VehicleRealtimeTrackingView
 import pt.carrismetropolitana.mobile.composables.screens.SplashScreen
+import pt.carrismetropolitana.mobile.composables.screens.home.AlertsListView
 import pt.carrismetropolitana.mobile.composables.screens.home.HomeScreen
 import pt.carrismetropolitana.mobile.composables.screens.lines.LineDetailsView
 import pt.carrismetropolitana.mobile.composables.screens.lines.LinesScreen
@@ -115,6 +116,7 @@ sealed class Screens(val route : String) {
 
     // Alerts destinations
     object AlertsForEntity: Screens("alerts_for_entity/{entityType}/{entityId}")
+    object AlertsList: Screens("alerts_list")
 
     object VehicleRealtimeTracking: Screens("vehicle_realtime_tracking/{vehicleId}")
 
@@ -504,6 +506,16 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                 }
                                         }
+                                }
+
+                                animatedComposable(
+                                    Screens.AlertsList.route
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        bottomNavbarVisible = false
+                                    }
+
+                                    AlertsListView(navController = navController)
                                 }
 
                                 animatedComposable(

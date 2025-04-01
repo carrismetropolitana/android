@@ -30,7 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import java.net.URL
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import pt.carrismetropolitana.mobile.ui.animations.shimmerEffect
@@ -127,6 +126,7 @@ fun CarouselItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
+                .background(Color.White)
                 .clip(shape = RoundedCornerShape(size = 12.dp)),
             contentDescription = null,
             contentScale = ContentScale.Crop

@@ -18,7 +18,7 @@ fun NewsCarousel(
     news: List<News>,
     onNewsClick: (news: News) -> Unit
 ) {
-    var carouselItems by remember { mutableStateOf(emptyList<CarouselItem>()) }
+    var carouselItems by rememberSaveable { mutableStateOf(emptyList<CarouselItem>()) }
 
     LaunchedEffect(news) {
         carouselItems = generateCarouselItems(news)

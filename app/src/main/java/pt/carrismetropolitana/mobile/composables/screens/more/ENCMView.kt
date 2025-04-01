@@ -90,7 +90,7 @@ fun ENCMView(
             )
         }
     ) { paddingValues ->
-        WebView(url = "https://cmet.pt/app-android/stores?locale=${getCurrentLocale(context)}", modifier = Modifier.padding(paddingValues))
+        WebView(url = "https://www.carrismetropolitana.pt/app-android/stores?locale=${getCurrentLocale(context)}", modifier = Modifier.padding(paddingValues))
     }
 
 }

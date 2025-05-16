@@ -34,7 +34,7 @@ fun AlertsListView(
             )
         }
     ) { paddingValues ->
-        WebView(url = "https://www.carrismetropolitana.pt/app-android/alerts?locale=${getCurrentLocale(context)}", modifier = Modifier.padding(paddingValues))
+        WebView(url = "https://carrismetropolitana.pt/app-android/alerts?locale=${getCurrentLocale(context)}", modifier = Modifier.padding(paddingValues))
     }
 
 }

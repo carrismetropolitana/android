@@ -14,7 +14,7 @@ interface CMWebAPIService {
 }
 
 object CMWebAPINetworkService {
-    private const val BASE_URL = "https://www.cmet.pt/api/app-android/"
+    private const val BASE_URL = "https://carrismetropolitana.pt/api/app-android/"
 
     private val json = Json {
         ignoreUnknownKeys = true

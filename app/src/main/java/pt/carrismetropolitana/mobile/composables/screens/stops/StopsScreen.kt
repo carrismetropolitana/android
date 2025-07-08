@@ -101,7 +101,7 @@ fun StopsScreen(
 
     val selectedStopId = rememberSaveable { mutableStateOf<String?>(null) }
 
-    var searchFilteredStops by rememberSaveable { mutableStateOf<List<Stop>>(listOf()) }
+    var searchFilteredStops by remember { mutableStateOf<List<Stop>>(listOf()) }
 
     var mapVisualStyle by rememberSaveable { mutableStateOf(MapVisualStyle.MAP) }
 
@@ -119,7 +119,7 @@ fun StopsScreen(
     }
 
     var cameraPosition = remember { mutableStateOf(CameraPosition.Builder().target(LatLng(38.7, -9.0)).zoom(8.9).build()) }
-    val userLocation = rememberSaveable { mutableStateOf(Location(null)) }
+    val userLocation = remember { mutableStateOf(Location(null)) }
 
     Column(
         modifier = Modifier.fillMaxSize(),

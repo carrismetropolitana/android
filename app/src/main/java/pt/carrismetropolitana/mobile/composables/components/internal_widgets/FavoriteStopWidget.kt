@@ -25,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,8 +73,8 @@ fun FavoriteStopWidget(
 ) {
     val stopsManager = LocalStopsManager.current
 
-    var patterns by rememberSaveable { mutableStateOf(listOf<Pattern>()) }
-    var nextArrivalsForStop by rememberSaveable { mutableStateOf(listOf<RealtimeETA>()) }
+    var patterns by remember { mutableStateOf(listOf<Pattern>()) }
+    var nextArrivalsForStop by remember { mutableStateOf(listOf<RealtimeETA>()) }
 
     LaunchedEffect(Unit) {
         for (patternId in favoriteItem.patternIds) {

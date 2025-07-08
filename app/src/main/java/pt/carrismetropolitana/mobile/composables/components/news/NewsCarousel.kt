@@ -5,8 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import pt.carrismetropolitana.mobile.composables.CarouselItem
 import pt.carrismetropolitana.mobile.composables.WrappingCarousel
@@ -18,7 +16,7 @@ fun NewsCarousel(
     news: List<News>,
     onNewsClick: (news: News) -> Unit
 ) {
-    var carouselItems by rememberSaveable { mutableStateOf(emptyList<CarouselItem>()) }
+    var carouselItems by remember { mutableStateOf(emptyList<CarouselItem>()) }
 
     LaunchedEffect(news) {
         carouselItems = generateCarouselItems(news)

@@ -22,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +48,7 @@ import pt.carrismetropolitana.mobile.ui.theme.CMYellow
 
 @Composable
 fun MoreScreen(navController: NavController, paddingValues: PaddingValues, context: Context) {
-    var news by rememberSaveable { mutableStateOf(emptyList<News>()) }
+    var news by remember { mutableStateOf(emptyList<News>()) }
 
     LaunchedEffect(Unit) {
         news = CMWPAPI.shared.getNews()
